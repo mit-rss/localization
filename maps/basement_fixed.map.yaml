@@ -1,0 +1,8 @@
+# this is a map of the basement, made with SLAM and optimized with PhotoShop
+
+image: basement_fixed2.png
+resolution: 0.0504
+origin:  [25.900000, 48.50000, 3.14]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
