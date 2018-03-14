@@ -301,7 +301,7 @@ class ParticleFiler():
 
     # proposal dist should be N by 3 numpy array, action is probably a size 3 numpy vector
     def motion_model(self, proposal_dist, action):
-        # YOUR CODE - compute your sensor model here
+        # YOUR CODE - compute your motion model here
         # Perturb each particle by the amount given by the last action
         # Add randomness
         # BE WARY OF COORDINATE SPACES
