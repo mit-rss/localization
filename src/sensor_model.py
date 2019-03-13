@@ -88,4 +88,3 @@ class SensorModel:
 
         # Make the map set
         map_set = True
->>>>>>> f2ada75e99a97dce1c48a2f4eaeb0a1e946e960d
