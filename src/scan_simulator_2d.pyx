@@ -3,14 +3,14 @@ import numpy as np
 cimport numpy as np
 from libcpp.vector cimport vector
 
-cdef extern from "pose_2d.hpp" namespace "racecar_simulator":
+cdef extern from "racecar_simulator/pose_2d.hpp" namespace "racecar_simulator":
 
     cdef struct Pose2D:
         double x
         double y
         double theta
 
-cdef extern from "scan_simulator_2d.hpp"  namespace "racecar_simulator":
+cdef extern from "racecar_simulator/scan_simulator_2d.hpp"  namespace "racecar_simulator":
 
     cppclass ScanSimulator2D:
         ScanSimulator2D(
@@ -31,9 +31,20 @@ cdef extern from "scan_simulator_2d.hpp"  namespace "racecar_simulator":
 
 cdef class PyScanSimulator2D:
     cdef ScanSimulator2D * thisptr;
+    cdef int num_beams
 
-    def __init__(self, int num_beams, double field_of_view, double scan_std_dev, double ray_tracing_epsilon):
-        self.thisptr = new ScanSimulator2D(num_beams, field_of_view, scan_std_dev, ray_tracing_epsilon)
+    def __init__(
+            self, 
+            int num_beams_,
+            double field_of_view_,
+            double scan_std_dev_,
+            double ray_tracing_epsilon_):
+        self.num_beams = num_beams_
+        self.thisptr = new ScanSimulator2D(
+                num_beams_,
+                field_of_view_,
+                scan_std_dev_,
+                ray_tracing_epsilon_)
 
     def __dealloc__(self):
         del self.thisptr
@@ -62,11 +73,16 @@ cdef class PyScanSimulator2D:
 
     def scan(self, np.ndarray[double, ndim=2] poses):
         # Allocate the output vector
-        cdef np.dnarray[double, ndim=2] scans = np.empty([poses.shape[0], num_beams], np.double)
+        cdef np.ndarray[double, ndim=2] scans = \
+                np.empty([poses.shape[0], self.num_beams], np.double)
+
+        # Allocate the for loops
+        cdef Pose2D p
+        cdef vector[double] s 
 
         for i in range(poses.shape[0]):
-            cdef p = Pose2D(poses[0], poses[1], poses[2])
-            cdef vector[double] s = self.thisptr.scan(p)
+            p = Pose2D(poses[i,0], poses[i,1], poses[i,2])
+            s = self.thisptr.scan(p)
 
             for j in range(s.size()):
                 scans[i,j] = s[j]
