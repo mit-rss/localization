@@ -19,7 +19,8 @@ class SensorModel:
         ####################################
         # TODO
         # Precompute the sensor model here
-
+        # (You should probably write a
+        #  function for this)
 
         ####################################
 
@@ -28,15 +29,16 @@ class SensorModel:
                 self.num_beams_per_particle,
                 self.scan_field_of_view,
                 0, # This is not the simulator, don't add noise
-                0.001) # This is used as an epsilon
+                0.0001) # This is used as an epsilon
 
         # Subscribe to the map
-        map_set = False
+        self.map_set = False
         rospy.Subscriber(
                 self.map_topic,
                 OccupancyGrid,
                 self.map_callback,
                 queue_size=1)
+
 
     def evaluate(self, particles, observation):
         """
@@ -59,7 +61,7 @@ class SensorModel:
                given the observation and the map.
         """
 
-        if not map_set:
+        if not self.map_set:
             return
 
         ####################################
@@ -76,7 +78,8 @@ class SensorModel:
 
     def map_callback(self, map_msg):
         # Convert the map to a numpy array
-        map_ = np.array(map_msg.data, np.double)/255.
+        map_ = np.array(map_msg.data, np.double)/100.
+        map_ = np.clip(map_, 0, 1)
 
         # Convert the origin to a tuple
         origin_p = map_msg.info.origin.position
@@ -98,6 +101,6 @@ class SensorModel:
                 0.5) # Consider anything < 0.5 to be free
 
         # Make the map set
-        map_set = True
+        self.map_set = True
 
         print("Map initialized")

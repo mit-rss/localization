@@ -14,6 +14,10 @@ class ParticleFilter:
 
         # Implement the MCL algorithm
         # using the sensor model and the motion model
+        #
+        # Make sure you include some way to initialize
+        # your particles, ideally with some sort
+        # of interactive interface in rviz
 
 if __name__ == "__main__":
     rospy.init_node("particle_filter")
