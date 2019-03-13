@@ -29,7 +29,7 @@ class SensorModel:
                 self.num_beams_per_particle,
                 self.scan_field_of_view,
                 0, # This is not the simulator, don't add noise
-                0.0001) # This is used as an epsilon
+                0.01) # This is used as an epsilon
 
         # Subscribe to the map
         self.map_set = False
