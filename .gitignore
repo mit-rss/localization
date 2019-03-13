@@ -3,3 +3,5 @@ log.npz
 build
 *.so
 scan_simulator_2d.cpp
+*.sw*
+*.pyc
