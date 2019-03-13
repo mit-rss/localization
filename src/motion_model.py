@@ -24,4 +24,4 @@ class MotionModel:
             odometry: A 3-vector [dx dy dtheta]
         """
         
-        particles
+        pass
