@@ -8,6 +8,10 @@ class ParticleFilter:
 
     def __init__(self):
 
+        # Get parameters
+        self.particle_filter_frame = \
+                rospy.get_param("~particle_filter_frame")
+
         # Initialize the models
         self.motion_model = MotionModel()
         self.sensor_model = SensorModel()
@@ -18,6 +22,9 @@ class ParticleFilter:
         # Make sure you include some way to initialize
         # your particles, ideally with some sort
         # of interactive interface in rviz
+        #
+        # Publish a transformation frame between the map
+        # and the particle_filter_frame.
 
 if __name__ == "__main__":
     rospy.init_node("particle_filter")
