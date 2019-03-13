@@ -80,11 +80,11 @@ cdef class PyScanSimulator2D:
         cdef Pose2D p
         cdef vector[double] s 
 
-        for i in range(poses.shape[0]):
+        for i in xrange(poses.shape[0]):
             p = Pose2D(poses[i,0], poses[i,1], poses[i,2])
             s = self.thisptr.scan(p)
 
-            for j in range(s.size()):
+            for j in xrange(s.size()):
                 scans[i,j] = s[j]
 
         return scans

@@ -11,7 +11,7 @@ extensions = [
             include_dirs=["/home/racecar/racecar_ws/install/include", "/usr/local/include", np.get_include()],
             library_dirs=["/home/racecar/racecar_ws/devel/lib", "/usr/local/lib"],
             language='c++',
-            extra_compile_args=["-std=c++11"],
+            extra_compile_args=["-std=c++11", "-O2", "-O3"],
             extra_link_args=["-std=c++11"]
             )]
 
