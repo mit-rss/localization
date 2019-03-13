@@ -1,17 +1,5 @@
 <launch>
-	<arg name="scan_topic" default="/scan"/>
-	<arg name="odometry_topic" default="/odom"/>
-	<arg name="max_particles" default="2000"/>
-	
-	<node pkg="lab5_localization" type="particle_filter.py" name="Particle_filter">
-		<param name="scan_topic" value="$(arg scan_topic)"/>
-		<param name="odometry_topic" value="$(arg odometry_topic)"/>
-		<param name="max_particles" value="$(arg max_particles)"/>
-		<param name="max_viz_particles" value="100"/>
-		<param name="range_method" value="cddt"/>
-
-		<param name="theta_discretization" value="108"/>
-		<!-- max sensor range in meters -->
-		<param name="max_range" value="10"/> 
+	<node pkg="localization" type="particle_filter.py" name="particle_filter">
+    <rosparam command="load" file="$(find localization)/params.yaml"/>
 	</node>
 </launch>
