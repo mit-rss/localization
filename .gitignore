@@ -1,2 +1,5 @@
 log.npz
 .ipynb_checkpoints/
+build
+*.so
+scan_simulator_2d.cpp
