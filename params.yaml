@@ -14,3 +14,6 @@ scan_field_of_view: 4.71 # radians
 map_topic: "/map"
 scan_topic: "/scan"
 odom_topic: "/odom"
+
+# The frame you should publish your transform to.
+particle_filter_frame: "/base_link_pf"
