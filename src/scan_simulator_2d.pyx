@@ -27,7 +27,7 @@ cdef extern from "racecar_simulator/scan_simulator_2d.hpp"  namespace "racecar_s
                 Pose2D & origin,
                 double free_threshold)
 
-        vector[double] scan(Pose2D & pose)
+        void scan(Pose2D & pose, double * scan_data)
 
 cdef class PyScanSimulator2D:
     cdef ScanSimulator2D * thisptr;
@@ -71,20 +71,16 @@ cdef class PyScanSimulator2D:
                 origin,
                 free_threshold)
 
-    def scan(self, np.ndarray[double, ndim=2] poses):
+    def scan(self, np.ndarray[double, ndim=2, mode="c"] poses):
         # Allocate the output vector
-        cdef np.ndarray[double, ndim=2] scans = \
+        cdef np.ndarray[double, ndim=2, mode="c"] scans = \
                 np.empty([poses.shape[0], self.num_beams], np.double)
 
         # Allocate the for loops
         cdef Pose2D p
-        cdef vector[double] s 
 
         for i in xrange(poses.shape[0]):
             p = Pose2D(poses[i,0], poses[i,1], poses[i,2])
-            s = self.thisptr.scan(p)
-
-            for j in xrange(s.size()):
-                scans[i,j] = s[j]
+            self.thisptr.scan(p, &scans[i,0])
 
         return scans
