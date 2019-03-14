@@ -17,7 +17,8 @@ cdef extern from "racecar_simulator/scan_simulator_2d.hpp"  namespace "racecar_s
                 int num_beams_,
                 double field_of_view_,
                 double scan_std_dev_,
-                double ray_tracing_epsilon)
+                double ray_tracing_epsilon_,
+                int theta_discretization_)
 
         void set_map(
                 vector[double] & map_,
@@ -38,13 +39,15 @@ cdef class PyScanSimulator2D:
             int num_beams_,
             double field_of_view_,
             double scan_std_dev_,
-            double ray_tracing_epsilon_):
+            double ray_tracing_epsilon_,
+            int theta_discretization_):
         self.num_beams = num_beams_
         self.thisptr = new ScanSimulator2D(
                 num_beams_,
                 field_of_view_,
                 scan_std_dev_,
-                ray_tracing_epsilon_)
+                ray_tracing_epsilon_,
+                theta_discretization_)
 
     def __dealloc__(self):
         del self.thisptr
