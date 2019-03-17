@@ -2,14 +2,29 @@ from distutils.core import setup
 from Cython.Build import cythonize
 from distutils.extension import Extension
 import numpy as np
+import os
+
+# Add non-ROS install locations
+include_dirs = ["/usr/local/include", np.get_include()]
+library_dirs = ["/usr/local/lib"]
+
+# Get a list of all package locations
+ros_package_paths = os.environ['ROS_PACKAGE_PATH']
+for path in ros_package_paths.split(":"):
+    # One of these will be
+    # .../catkin_ws/src/
+    include_dir = os.path.abspath(os.path.join(path, "../install/include"))
+    library_dir = os.path.abspath(os.path.join(path, "../devel/lib"))
+    include_dirs.append(include_dir)
+    library_dirs.append(library_dir)
 
 extensions = [
         Extension(
             "scan_simulator_2d",
             ["scan_simulator_2d.pyx"],
             libraries=["racecar_simulator"],
-            include_dirs=["/home/racecar/racecar_ws/install/include", "/usr/local/include", np.get_include()],
-            library_dirs=["/home/racecar/racecar_ws/devel/lib", "/usr/local/lib"],
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
             language='c++',
             extra_compile_args=["-std=c++11", "-O2", "-O3"],
             extra_link_args=["-std=c++11"]
