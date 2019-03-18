@@ -53,8 +53,8 @@ class SensorModel:
                 [x1 y0 theta1]
                 [    ...     ]
 
-            observation: A vector of lidar data of
-                length N
+            observation: A vector of lidar data measured
+                from the actual lidar.
 
         returns:
            probabilities: A vector of length N representing
