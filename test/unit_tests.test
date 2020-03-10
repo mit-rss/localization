@@ -1,0 +1,21 @@
+<launch>
+  <include file="$(find racecar_simulator)/launch/simulate.launch">
+    <arg name="map" value="$(find localization)/test/maps/test_map.yaml"/>
+  </include>
+
+  <test pkg="localization" test-name="sensor_model_test" type="test_sensor_model.py">
+    <rosparam command="load" file="$(find localization)/params.yaml"/>
+    <param name="particle_filter_frame" value="/base_link_pf"/>
+    <param name="map_topic" value="/map"/>
+    <param name="scan_topic" value="/scan"/>
+    <param name="odom_topic" value="/odom"/>
+    <param name="angle_step" value="1"/>
+    <param name="num_beams_per_particle" value="100"/>
+  </test>
+
+  <test pkg="localization" test-name="motion_model_test" type="test_motion_model.py">
+    <rosparam command="load" file="$(find localization)/params.yaml"/>
+    <param name="deterministic" value="true"/>
+    <param name="num_particles" value="50"/>
+  </test>
+</launch>

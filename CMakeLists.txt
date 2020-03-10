@@ -9,3 +9,5 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
 )
+
+catkin_python_setup()

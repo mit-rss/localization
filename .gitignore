@@ -5,3 +5,4 @@ build
 scan_simulator_2d.cpp
 *.sw*
 *.pyc
+.vscode/
