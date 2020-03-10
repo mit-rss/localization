@@ -33,6 +33,6 @@ class MotionModel:
         ####################################
         # TODO
 
-        pass
+        raise NotImplementedError
 
         ####################################
