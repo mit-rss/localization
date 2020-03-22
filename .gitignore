@@ -6,3 +6,4 @@ scan_simulator_2d.cpp
 *.sw*
 *.pyc
 .vscode/
+CATKIN_IGNORE
