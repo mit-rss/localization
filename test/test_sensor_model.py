@@ -24,7 +24,7 @@ class TestSensorModel(unittest.TestCase):
         self.sensor_model.alpha_max = 0.07
         self.sensor_model.alpha_rand = 0.12
         self.sensor_model.sigma_hit = 8.0
-        self.sensor_model.max_range_px = 200
+        self.sensor_model.table_width = 201
         self.sensor_model.precompute_sensor_model()
 
         self.tol = 1e-6
@@ -36,6 +36,7 @@ class TestSensorModel(unittest.TestCase):
         expected_table = np.array(TEST_PRECOMPUTED_TABLE)
         actual_table = self.sensor_model.sensor_model_table
 
+        self.assertTrue(actual_table.shape, expected_table.shape)
         np.testing.assert_allclose(expected_table, actual_table, rtol=self.tol)
 
     def test_evaluate(self):

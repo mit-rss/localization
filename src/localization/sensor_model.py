@@ -24,7 +24,9 @@ class SensorModel:
         self.alpha_max = 0
         self.alpha_rand = 0
         self.sigma_hit = 0
-        self.max_range_px = 0
+
+        # Your sensor table will be a `table_width` x `table_width` np array:
+        self.table_width = 201
         ####################################
 
         # Precompute the sensor model table
@@ -59,7 +61,7 @@ class SensorModel:
         This table must be implemented as a numpy 2D array.
 
         Compute the table based on class parameters alpha_hit, alpha_short,
-        alpha_max, alpha_rand, sigma_hit, and max_range_px.
+        alpha_max, alpha_rand, sigma_hit, and table_width.
 
         args:
             N/A
