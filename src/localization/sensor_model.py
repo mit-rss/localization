@@ -10,7 +10,6 @@ class SensorModel:
 
 
     def __init__(self):
-
         # Fetch parameters
         self.map_topic = rospy.get_param("~map_topic")
         self.num_beams_per_particle = rospy.get_param("~num_beams_per_particle")
@@ -19,11 +18,20 @@ class SensorModel:
 
         ####################################
         # TODO
-        # Precompute the sensor model here
-        # (You should probably write a
-        #  function for this)
+        # Adjust these parameters
+        self.alpha_hit = 0
+        self.alpha_short = 0
+        self.alpha_max = 0
+        self.alpha_rand = 0
+        self.sigma_hit = 0
 
+        # Your sensor table will be a `table_width` x `table_width` np array:
+        self.table_width = 201
         ####################################
+
+        # Precompute the sensor model table
+        self.sensor_model_table = None
+        self.precompute_sensor_model()
 
         # Create a simulated laser scan
         self.scan_sim = PyScanSimulator2D(
@@ -34,12 +42,34 @@ class SensorModel:
                 self.scan_theta_discretization) 
 
         # Subscribe to the map
+        self.map = None
         self.map_set = False
         rospy.Subscriber(
                 self.map_topic,
                 OccupancyGrid,
                 self.map_callback,
                 queue_size=1)
+
+    def precompute_sensor_model(self):
+        """
+        Generate and store a table which represents the sensor model.
+        
+        For each discrete computed range value, this provides the probability of 
+        measuring any (discrete) range. This table is indexed by the sensor model
+        at runtime by discretizing the measurements and computed ranges from
+        RangeLibc.
+        This table must be implemented as a numpy 2D array.
+
+        Compute the table based on class parameters alpha_hit, alpha_short,
+        alpha_max, alpha_rand, sigma_hit, and table_width.
+
+        args:
+            N/A
+        
+        returns:
+            No return type. Directly modify `self.sensor_model_table`.
+        """
+        raise NotImplementedError
 
     def evaluate(self, particles, observation):
         """
@@ -79,8 +109,8 @@ class SensorModel:
 
     def map_callback(self, map_msg):
         # Convert the map to a numpy array
-        map_ = np.array(map_msg.data, np.double)/100.
-        map_ = np.clip(map_, 0, 1)
+        self.map = np.array(map_msg.data, np.double)/100.
+        self.map = np.clip(self.map, 0, 1)
 
         # Convert the origin to a tuple
         origin_p = map_msg.info.origin.position
@@ -94,7 +124,7 @@ class SensorModel:
 
         # Initialize a map with the laser scan
         self.scan_sim.set_map(
-                map_,
+                self.map,
                 map_msg.info.height,
                 map_msg.info.width,
                 map_msg.info.resolution,
