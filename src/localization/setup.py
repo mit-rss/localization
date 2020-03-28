@@ -13,8 +13,8 @@ ros_package_paths = os.environ['ROS_PACKAGE_PATH']
 for path in ros_package_paths.split(":"):
     # One of these will be
     # .../catkin_ws/src/
-    include_dir = os.path.abspath(os.path.join(path, "../install/include"))
-    library_dir = os.path.abspath(os.path.join(path, "../devel/lib"))
+    include_dir = os.path.abspath(os.path.join(path, "../../install/include"))
+    library_dir = os.path.abspath(os.path.join(path, "../../devel/lib"))
     include_dirs.append(include_dir)
     library_dirs.append(library_dir)
 
