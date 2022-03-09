@@ -1,11 +1,11 @@
 | Deliverable | Due Date              |
 |---------------|----------------------------------------------------------------------------|
 | Part A individual submission (gradescope) | Wednesday, March 16th at 1:00PM EST |
-| Briefing (8 min presentation + 3 min Q&A) (slides on [github pages](https://github.mit.edu/rss/website2021))  | Wednesday, March 30th at 1:00PM EST |
-| Report (on [team github pages website](https://github.mit.edu/rss/website2021)) | Friday, April 1st at 11:59PM EST |
+| Briefing (8 min presentation + 3 min Q&A) (slides on github pages)  | Wednesday, March 30th at 1:00PM EST |
+| Report (on team github pages website) | Friday, April 1st at 11:59PM EST |
 | Part B team submission (gradescope) | Friday, April 1st at 11:59PM EST |
 | Pushed code | Friday, April 1st at 11:59PM EST |
-| [Team Member Assessment](https://docs.google.com/forms/d/e/1FAIpQLSeH7moDd1OhA5nKpBgstc7plhaBMFm3L1H99joylZSgegmQYw/viewform?usp=sf_link) | Friday, April 1st at 11:59PM EST |
+| [Team Member Assessment](https://forms.gle/qwQtuj4cMP6Qiy518) | Friday, April 1st at 11:59PM EST |
 | OPTIONAL: Parts D and E | Friday, April 1st at 11:59PM EST |
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
