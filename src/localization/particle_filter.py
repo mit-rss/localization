@@ -13,8 +13,7 @@ class ParticleFilter:
 
     def __init__(self):
         # Get parameters
-        self.particle_filter_frame = \
-                rospy.get_param("~particle_filter_frame")
+        self.particle_filter_frame = rospy.get_param("~particle_filter_frame")
 
         # Initialize publishers/subscribers
         #
