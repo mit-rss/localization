@@ -4,8 +4,7 @@ class MotionModel:
 
     def __init__(self):
         ####################################
-        # self.deterministic = rospy.get_param("~deterministic", False)
-        self.deterministic = True
+        self.deterministic = rospy.get_param("~deterministic", False)
 
         ####################################
 
@@ -30,31 +29,33 @@ class MotionModel:
         
         ####################################
 
+        # number of particles
         n = len(particles)
-        rospy.logwarn(n)
-        theta_old = particles[:,2] # column of all thetas
-        c = np.cos(theta_old) # column of all coss of thetas
-        s = np.sin(theta_old) # column of all sins of thetas
-        R = np.array([[c,-s],[s,c]])
 
-        rospy.logwarn(np.shape( np.transpose(odometry[0:2]) ))
+        # extract columns from particles
+        x_old = particles[:,0]
+        y_old = particles[:,1]
+        theta_old = particles[:,2]
+
+        c = np.cos(theta_old) # column of all cos's of thetas
+        s = np.sin(theta_old) # column of all sin's of thetas
         
-        dx = np.repeat(np.transpose( np.array([odometry[0:2]]))[:,:,np.newaxis], n, axis =2)
-        rospy.logwarn(np.shape(R))
-        rospy.logwarn(np.shape(dx))
-        new_x = np.dot(R,dx)
+        # calculate delta column vectors explicitly instead of using rotation matrices
+        d_x = np.reshape( odometry[0]*c - odometry[1]*s ,(n,1))
+        d_y = np.reshape( odometry[0]*s + odometry[1]*c ,(n,1))
 
+        # make column vector of d_theta
         d_thetas = np.tile(odometry[2], (n,1))
-        # rospy.logwarn(new_x)
-        # rospy.logwarn("poop")
-        # rospy.logwarn(thetas)
-        delta_x = np.concatenate(new_x,d_thetas,axis = 1)
-        # repeated = np.tile(odometry, (n, 1))
-        noise = np.random.normal(scale=0.1, size=(n, 3))
-        # deltaX = repeated if self.deterministic else repeated+noise 
         
-        return particles + delta_x
-        # new_theta = old_theta + d_theta
-        # new_x = old_x_vec + R(old_theta) * d_x_vec
+        # combine all the delta column vectors into an n*3 matrix
+        # np.stack defaults to an n*3*1 matrix for whatever reason
+        delta = np.reshape( np.stack([d_x, d_y,d_thetas], axis=1), (n,3) )
 
+        # add noise
+        if not self.deterministic:
+            # TODO: Play with this scale value. Make it something reasonable
+            delta = delta + np.random.normal(scale=0.1, size=(n, 3)) 
+        
+        return particles + delta
+        
         ####################################
