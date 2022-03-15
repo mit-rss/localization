@@ -19,11 +19,13 @@ class SensorModel:
         ####################################
         # TODO
         # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 0
-        self.alpha_rand = 0
-        self.sigma_hit = 0
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
+        self.sigma_hit = 8.0
+
+        self.squash_power = 1/2.2
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
@@ -69,7 +71,19 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
-        raise NotImplementedError
+
+        self.sensor_model_table = np.zeros(table_width, table_width)
+        eta = 1; #figure something out here
+
+        for z_k in range(0,table_width):
+            for d in range(0,table_width):
+                p_hit = eta*1/(sqrt(2*pi*sigma_hit**2))*exp(-(z_k-d)**2/(2*sigma_hit))
+                p_short = 2/d*(1-z_k/d)
+                p_max = 1/eps
+                p_rand = 1/z_max
+                p = alpha_hit*p_hit + a_short*p_short + a_max*p_max + a_rand*p_rand
+                self.sensor_model_table(z_k,d) = p
+        print(self.sensor_model_table)
 
     def evaluate(self, particles, observation):
         """
