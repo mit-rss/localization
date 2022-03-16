@@ -6,6 +6,8 @@ import tf
 from nav_msgs.msg import OccupancyGrid
 from tf.transformations import quaternion_from_euler
 
+import matplotlib.pyplot as plt
+
 class SensorModel:
 
 
@@ -19,14 +21,14 @@ class SensorModel:
         ####################################
         # TODO
         # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 1
-        self.alpha_rand = 0
-        # self.alpha_hit = 0.74
-        # self.alpha_short = 0.07
-        # self.alpha_max = 0.07
-        # self.alpha_rand = 0.12
+        # self.alpha_hit = 0
+        # self.alpha_short = 1
+        # self.alpha_max = 0
+        # self.alpha_rand = 0
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
         self.sigma_hit = 8.0
 
         self.squash_power = 1/2.2
@@ -89,8 +91,10 @@ class SensorModel:
         # sum of p ~= 0.7   sum of p = 1        sum of p ~= 0.7
         eta = 1/9.407395
 
-        #overall normalization factor
-        eta2 = 1/1.0
+        #pshort normalization factor
+        eta2 = 1/40.0
+
+        #TODO: these etas should be 
 
         # not really sure what this value should be. Does it matter?
         z_max = 10.0
@@ -107,8 +111,8 @@ class SensorModel:
 
                 p_hit = eta/np.sqrt(np.pi*ssigma2) * np.exp( -(z_k-d)**2/(ssigma2) )
 
-                # TODO: This is very broken
-                p_short = np.piecewise(d, d > 0, [lambda d: 2/d * (1 - z_k/d), 0])
+                p_short = eta2 * (2/d * (1 - z_k/d)) if (d > 0 and z_k <= d) else 0
+                # np.piecewise(d, d > 0, [lambda d: 2/d * (1 - z_k/d), 0])
 
                 # 1 if z_k == z_max, 0 otherwise
                 p_max = np.piecewise(z_k, z_k == z_max, [1, 0])
@@ -118,14 +122,12 @@ class SensorModel:
 
                 p = self.alpha_hit*p_hit + self.alpha_short*p_short + self.alpha_max*p_max + self.alpha_rand*p_rand
 
-                self.sensor_model_table[i,j] = eta2 * p
+                self.sensor_model_table[i,j] = p
         
-        
-        # rospy.logwarn( np.shape(self.sensor_model_table))
-        # rospy.logwarn( self.sensor_model_table[0,1] )
-        # rospy.logwarn( self.sensor_model_table[1,0] )
+        # plt.plot(self.sensor_model_table)
+        # sum by column
+        # should be a list of 1s
         # rospy.logwarn( np.sum(self.sensor_model_table, axis=0) )
-        rospy.logwarn( np.sum(self.sensor_model_table, axis=0) ) # by column
         
 
     def evaluate(self, particles, observation):
@@ -148,6 +150,8 @@ class SensorModel:
                the probability of each particle existing
                given the observation and the map.
         """
+        rospy.logwarn("HM")
+        quit()
 
         if not self.map_set:
             return
@@ -159,9 +163,13 @@ class SensorModel:
         # You will probably want to use this function
         # to perform ray tracing from all the particles.
         # This produces a matrix of size N x num_beams_per_particle 
-
+        n = len(particles)
         scans = self.scan_sim.scan(particles)
-        return 1
+        # rospy.logwarn(scans)
+        # quit()
+
+
+        return np.tile(1, (1,n))
         ####################################
 
     def map_callback(self, map_msg):
