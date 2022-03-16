@@ -19,6 +19,10 @@ class SensorModel:
         ####################################
         # TODO
         # Adjust these parameters
+        # self.alpha_hit = 1
+        # self.alpha_short = 0
+        # self.alpha_max = 0
+        # self.alpha_rand = 0
         self.alpha_hit = 0.74
         self.alpha_short = 0.07
         self.alpha_max = 0.07
@@ -72,18 +76,47 @@ class SensorModel:
             No return type. Directly modify `self.sensor_model_table`.
         """
 
-        self.sensor_model_table = np.zeros(table_width, table_width)
-        eta = 1; #figure something out here
+        self.sensor_model_table = np.zeros([self.table_width, self.table_width])
+        
+        # normalization parameter. Acquired by setting alpha_hit to 1 and all other alpha's to 0, then summing over the columns of the sensor_model_table. I then took the value from the middle of that list
+        # these probabilities sums were _not_ all the same; some gaussians were more clipped than others. This is why I took the value from the center of the table where d=zmax/2
 
-        for z_k in range(0,table_width):
-            for d in range(0,table_width):
-                p_hit = eta*1/(sqrt(2*pi*sigma_hit**2))*exp(-(z_k-d)**2/(2*sigma_hit))
-                p_short = 2/d*(1-z_k/d)
-                p_max = 1/eps
+        #___                #        ___        #             __#
+        #   \               #       /   \       #            /  #
+        #    \______________#______/     \______#___________/   #
+        # 
+        # d=0               d = z_max/2         d = z_max
+        # sum of p ~= 0.7   sum of p = 1        sum of p ~= 0.7
+
+
+        eta = 1/9.407395
+        z_max = 10.0
+        ssigma2 = 2*self.sigma_hit**2
+
+
+        for i in range(self.table_width): # rows
+            z_k = i*z_max / self.table_width
+
+            for j in range(self.table_width): # columns
+                d = j*z_max / self.table_width
+
+                p_hit = eta/np.sqrt(np.pi*ssigma2) * np.exp( -(z_k-d)**2/(ssigma2) )
+                p_short = np.piecewise(d, d > 0, [lambda d: 2/d * (1 - z_k/d), 0])
+                # 1 if z_k == z_max, 0 otherwise
+                p_max = np.piecewise(z_k, z_k == z_max, [1, 0])
                 p_rand = 1/z_max
-                p = alpha_hit*p_hit + a_short*p_short + a_max*p_max + a_rand*p_rand
-                self.sensor_model_table(z_k,d) = p
-        print(self.sensor_model_table)
+
+                p = self.alpha_hit*p_hit + self.alpha_short*p_short + self.alpha_max*p_max + self.alpha_rand*p_rand
+
+                self.sensor_model_table[i,j] = p
+        
+        
+        # rospy.logwarn( np.shape(self.sensor_model_table))
+        # rospy.logwarn( self.sensor_model_table[0,1] )
+        # rospy.logwarn( self.sensor_model_table[1,0] )
+        # rospy.logwarn( np.sum(self.sensor_model_table, axis=0) )
+        rospy.logwarn( np.sum(self.sensor_model_table, axis=1) ) # by column
+        
 
     def evaluate(self, particles, observation):
         """
@@ -118,7 +151,7 @@ class SensorModel:
         # This produces a matrix of size N x num_beams_per_particle 
 
         scans = self.scan_sim.scan(particles)
-
+        return 1
         ####################################
 
     def map_callback(self, map_msg):
