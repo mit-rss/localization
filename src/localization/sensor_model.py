@@ -19,14 +19,14 @@ class SensorModel:
         ####################################
         # TODO
         # Adjust these parameters
-        # self.alpha_hit = 1
-        # self.alpha_short = 0
-        # self.alpha_max = 0
-        # self.alpha_rand = 0
-        self.alpha_hit = 0.74
-        self.alpha_short = 0.07
-        self.alpha_max = 0.07
-        self.alpha_rand = 0.12
+        self.alpha_hit = 0
+        self.alpha_short = 0
+        self.alpha_max = 1
+        self.alpha_rand = 0
+        # self.alpha_hit = 0.74
+        # self.alpha_short = 0.07
+        # self.alpha_max = 0.07
+        # self.alpha_rand = 0.12
         self.sigma_hit = 8.0
 
         self.squash_power = 1/2.2
@@ -87,35 +87,45 @@ class SensorModel:
         # 
         # d=0               d = z_max/2         d = z_max
         # sum of p ~= 0.7   sum of p = 1        sum of p ~= 0.7
-
-
         eta = 1/9.407395
+
+        #overall normalization factor
+        eta2 = 1/1.0
+
+        # not really sure what this value should be. Does it matter?
         z_max = 10.0
+
+        # 2*sigma^2. For convenience
         ssigma2 = 2*self.sigma_hit**2
 
 
         for i in range(self.table_width): # rows
-            z_k = i*z_max / self.table_width
+            z_k = i*z_max / (self.table_width - 1)
 
             for j in range(self.table_width): # columns
-                d = j*z_max / self.table_width
+                d = j*z_max / (self.table_width - 1)
 
                 p_hit = eta/np.sqrt(np.pi*ssigma2) * np.exp( -(z_k-d)**2/(ssigma2) )
+
+                # TODO: This is very broken
                 p_short = np.piecewise(d, d > 0, [lambda d: 2/d * (1 - z_k/d), 0])
+
                 # 1 if z_k == z_max, 0 otherwise
                 p_max = np.piecewise(z_k, z_k == z_max, [1, 0])
-                p_rand = 1/z_max
+
+                # This is 1/table_width instead of 1/z_max, due to discretization nonsense
+                p_rand = 1.0/self.table_width
 
                 p = self.alpha_hit*p_hit + self.alpha_short*p_short + self.alpha_max*p_max + self.alpha_rand*p_rand
 
-                self.sensor_model_table[i,j] = p
+                self.sensor_model_table[i,j] = eta2 * p
         
         
         # rospy.logwarn( np.shape(self.sensor_model_table))
         # rospy.logwarn( self.sensor_model_table[0,1] )
         # rospy.logwarn( self.sensor_model_table[1,0] )
         # rospy.logwarn( np.sum(self.sensor_model_table, axis=0) )
-        rospy.logwarn( np.sum(self.sensor_model_table, axis=1) ) # by column
+        rospy.logwarn( np.sum(self.sensor_model_table, axis=0) ) # by column
         
 
     def evaluate(self, particles, observation):
