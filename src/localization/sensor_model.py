@@ -19,11 +19,11 @@ class SensorModel:
         ####################################
         # TODO
         # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 0
-        self.alpha_rand = 0
-        self.sigma_hit = 0
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
+        self.sigma_hit = 8
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
@@ -69,7 +69,32 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
-        raise NotImplementedError
+        probtable = np.empty((self.table_width, self.table_width), dtype=np.float64)
+        phittable = np.empty((self.table_width, self.table_width), dtype=np.float64)
+
+        for zk in range(self.table_width):
+            for d in range(self.table_width):
+                phittable[zk][d] = (np.exp(-(zk-d)**2/(2*self.sigma_hit**2)))/(2*3.14*self.sigma_hit**2)**0.5
+        print(phittable)
+        np.transpose(phittable)
+        print(phittable)
+        for i in range(len(phittable)):
+            phittable[i] /= sum(phittable[i])     
+        np.transpose(phittable)
+
+        for zk in range(self.table_width):
+            for d in range(self.table_width):
+                pmax = 1 if zk == (self.table_width - 1) else 0
+                pshort = 2.0*(1-zk/d)/d if (0 <= zk and zk <= d and d != 0) else 0
+                prand = 1.0/self.table_width
+                probtable[zk][d] = self.alpha_hit*phittable[zk][d] + self.alpha_short*pshort + self.alpha_max*pmax + self.alpha_rand*prand
+        np.transpose(probtable)
+        for i in range(len(probtable)):
+            probtable[i] /= sum(probtable[i]) 
+        np.transpose(probtable)
+
+        self.sensor_model_table = probtable
+        
 
     def evaluate(self, particles, observation):
         """
@@ -104,6 +129,8 @@ class SensorModel:
         # This produces a matrix of size N x num_beams_per_particle 
 
         scans = self.scan_sim.scan(particles)
+        observation = [x*1.0/self.map_resolution*lidar_scale_to_map_scale for x in observation if 0 <= x <= self.table_width]
+        probabilities = [self.sensor_model_table[obs][obs] for obs in observation]
 
         ####################################
 
@@ -135,3 +162,20 @@ class SensorModel:
         self.map_set = True
 
         print("Map initialized")
+
+# def main():
+#     self.sensor_model = SensorModel()
+#     map_topic = rospy.get_param("~map_topic")
+#     map_msg = rospy.wait_for_message(map_topic, OccupancyGrid)
+#     self.sensor_model.map_callback(map_msg)
+#     self.sensor_model.alpha_hit = 0.74
+#     self.sensor_model.alpha_short = 0.07
+#     self.sensor_model.alpha_max = 0.07
+#     self.sensor_model.alpha_rand = 0.12
+#     self.sensor_model.sigma_hit = 8.0
+#     self.sensor_model.table_width = 201
+#     self.sensor_model.precompute_sensor_model()
+
+
+# if __name__ == "__main__":
+#     main()
