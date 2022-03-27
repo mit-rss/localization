@@ -19,6 +19,7 @@ class SensorModel:
         self.num_beams_per_particle = rospy.get_param("~num_beams_per_particle", 100)
         self.scan_theta_discretization = rospy.get_param("~scan_theta_discretization", 500)
         self.scan_field_of_view = rospy.get_param("~scan_field_of_view", 4.71)
+        self.lidar_scale_to_map_scale = rospy.get_param("~lidar_scale_to_map_scale", 1.)
 
         ####################################
         # TODO
@@ -197,62 +198,49 @@ class SensorModel:
 
         hit_table = np.zeros([self.table_width, self.table_width])
         short_table = np.zeros([self.table_width, self.table_width])
-        max_table = np.zeros([self.table_width, self.table_width])
-        # This is 1/table_width instead of 1/z_max, due to discretization nonsense
-        rand_table = np.ones([self.table_width, self.table_width]) * 1.0/self.table_width
+
+        # Precompute random and max probability tables
+        max_table = np.concatenate((
+            np.zeros([self.table_width-1, self.table_width]),
+            np.ones([1,self.table_width])),
+        axis=0)
+        rand_table = np.ones([self.table_width, self.table_width]) / (self.table_width-1)
         
-
-        #TODO: these etas should perhaps be arrays of values, one for each column. Unsure.
-
-        # not really sure what this value should be. Does it matter? edit: Yes, apparently
-        # z_max = 1.0
-
         # 2*sigma^2. For convenience
-        ssigma2 = 2*self.sigma_hit**2
+        ssigma2 = 2*(self.sigma_hit**2)
 
-
+        # TODO: Vectorize
         for z_k in range(self.table_width): # rows
-            # z_k = i*z_max / (self.table_width - 1)
-
             for d in range(self.table_width): # columns
-                # d = j*z_max / (self.table_width - 1)
+                hit_table[z_k,d] = np.exp( -((z_k-d)**2)/(ssigma2) ) / np.sqrt(np.pi * ssigma2)
 
-                hit_table[z_k,d] = 1/np.sqrt(np.pi*ssigma2) * np.exp( -(z_k-d)**2/(ssigma2) )
-
-                short_table[z_k,d] = (2/d * (1 - z_k/d)) if (d > 0 and z_k <= d) else 0
-                # np.piecewise(d, d > 0, [lambda d: 2/d * (1 - z_k/d), 0])
-
-                # 1 if z_k == z_max, 0 otherwise
-                max_table[z_k,d] = np.piecewise(z_k, z_k == self.table_width-1, [1, 0])
-        
+                short_table[z_k,d] = (2./d * (1. - float(z_k)/d)) if (d > 0 and z_k <= d) else 0
         
         # normalize p_hit
         hit_sums = np.sum(hit_table, axis=0)
-        # print(hit_sums)
         hit_table = np.divide(hit_table, hit_sums)
-        # print(np.sum(hit_table, axis=0))
         
         self.sensor_model_table = self.alpha_hit*hit_table + self.alpha_short*short_table + self.alpha_max*max_table + self.alpha_rand*rand_table
         
         # normalize table
         table_sums = np.sum(self.sensor_model_table, axis=0)
-        
         self.sensor_model_table = np.divide(self.sensor_model_table, table_sums)
-        # print(np.sum(self.sensor_model_table, axis=0))
+        
 
-        if __name__ == '__main__':
+        if __name__ == '__main__' and False:
             # Plot our data
             fig = plt.figure(num=1, clear=True)
-            ax = fig.add_subplot(1, 2, 1, projection='3d')
             (x,y) = np.meshgrid(range(self.table_width), range(self.table_width))
+            
+            ax = fig.add_subplot(1, 2, 1, projection='3d')
             ax.plot_surface(x,y,self.sensor_model_table)
 
             # Plot the correct data
-            ax = fig.add_subplot(1, 2, 2, projection='3d')
-            (x,y) = np.meshgrid(range(self.table_width), range(self.table_width))
-            ax.plot_surface(x,y,np.array(TEST_PRECOMPUTED_TABLE))
+            ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+            ax2.plot_surface(x,y,np.array(TEST_PRECOMPUTED_TABLE))
+            # ax2.plot_surface(x,y,np.ones([self.table_width, self.table_width]))
+            
             fig.tight_layout()
-
             plt.show()
         
         
@@ -282,7 +270,6 @@ class SensorModel:
             return
 
         ####################################
-        # TODO
         # Evaluate the sensor model here!
         #
         # You will probably want to use this function
@@ -290,34 +277,30 @@ class SensorModel:
         # This produces a matrix of size N x num_beams_per_particle 
         n = len(particles)
         scans = self.scan_sim.scan(particles)
+        
+        # TODO: Map resolution? Who? Where?
+        map_scale =  self.map_resolution * self.lidar_scale_to_map_scale
 
+        # convert to pixels
+        scans_indices = (scans // map_scale).astype(int)
+        obs_indices = (observation // map_scale).astype(int)
+
+        # bound scans and observation
+        scans_indices = np.clip( scans_indices, 0, self.table_width - 1 )
+        obs_indices = np.clip( obs_indices, 0, self.table_width - 1 )
+        
+        
         probabilities = np.zeros(n)
 
-        # rospy.logwarn(observation)
-        for i in range(len(particles)):
-            particle = particles[i]
-            scan = scans[i]
+        # foreach particle, compute probabilities
+        # TODO: Vectorize
+        for i in range(len(scans)):
+            scan = scans_indices[i]
 
-            # length of the observation and scan are the same
-            lnx = 0
-
-            for j in range(len(scan)):
-                # find k and l
-                # TODO: what is the max distance? set to 10 here
-                k = int( scan[j] * self.table_width // 10 )
-                l = int( observation[j] * self.table_width // 10 )
-
-                lnx += np.log( self.sensor_model_table[k,l] )
-
-            probabilities[i] = np.exp(lnx)
-
-
-
-        # rospy.logwarn(scans)
-        # quit()
+            # probabilities[i] = np.exp( np.sum( np.log( self.sensor_model_table[(scan,obs_indices)] ) ) )
+            probabilities[i] = np.product( np.power( self.sensor_model_table[(scan,obs_indices)] , self.squash_power ) )
 
         return probabilities
-        # return np.tile(1, (1,n))
         ####################################
 
     def map_callback(self, map_msg):
@@ -346,6 +329,9 @@ class SensorModel:
 
         # Make the map set
         self.map_set = True
+
+        # HEY I ADDED THIS, POSSIBLY ILLEGALLY
+        self.map_resolution = map_msg.info.resolution
 
         print("Map initialized")
 
