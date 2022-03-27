@@ -4,7 +4,7 @@ class MotionModel:
 
     def __init__(self):
         ####################################
-        self.deterministic = rospy.get_param("~deterministic", False)
+        self.deterministic = rospy.get_param("~deterministic", True)
 
         ####################################
 

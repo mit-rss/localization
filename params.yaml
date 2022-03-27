@@ -23,3 +23,6 @@ particle_filter_frame: "/base_link_pf"
 
 # Deterministic flag; set to true to remove all added noise
 deterministic: true
+
+# Lidar Scale
+lidar_scale_to_map_scale: 1.0
