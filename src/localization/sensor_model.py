@@ -192,10 +192,7 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
-
-        # TODO: This fails the test case
-        self.sensor_model_table = np.zeros([self.table_width, self.table_width])
-
+        
         hit_table = np.zeros([self.table_width, self.table_width])
         short_table = np.zeros([self.table_width, self.table_width])
 
@@ -215,7 +212,7 @@ class SensorModel:
                 hit_table[z_k,d] = np.exp( -((z_k-d)**2)/(ssigma2) ) / np.sqrt(np.pi * ssigma2)
 
                 short_table[z_k,d] = (2./d * (1. - float(z_k)/d)) if (d > 0 and z_k <= d) else 0
-        
+
         # normalize p_hit
         hit_sums = np.sum(hit_table, axis=0)
         hit_table = np.divide(hit_table, hit_sums)
@@ -227,7 +224,7 @@ class SensorModel:
         self.sensor_model_table = np.divide(self.sensor_model_table, table_sums)
         
 
-        if __name__ == '__main__' and False:
+        if __name__ == '__main__':
             # Plot our data
             fig = plt.figure(num=1, clear=True)
             (x,y) = np.meshgrid(range(self.table_width), range(self.table_width))
@@ -282,8 +279,8 @@ class SensorModel:
         map_scale =  self.map_resolution * self.lidar_scale_to_map_scale
 
         # convert to pixels
-        scans_indices = (scans // map_scale).astype(int)
-        obs_indices = (observation // map_scale).astype(int)
+        scans_indices = (scans / map_scale).astype(int)
+        obs_indices = (observation / map_scale).astype(int)
 
         # bound scans and observation
         scans_indices = np.clip( scans_indices, 0, self.table_width - 1 )
@@ -298,9 +295,10 @@ class SensorModel:
             scan = scans_indices[i]
 
             # probabilities[i] = np.exp( np.sum( np.log( self.sensor_model_table[(scan,obs_indices)] ) ) )
-            probabilities[i] = np.product( np.power( self.sensor_model_table[(scan,obs_indices)] , self.squash_power ) )
+            probabilities[i] = np.product( self.sensor_model_table[(scan,obs_indices)] )
 
-        return probabilities
+        return np.power( probabilities, self.squash_power )
+        
         ####################################
 
     def map_callback(self, map_msg):
