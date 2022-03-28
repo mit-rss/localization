@@ -4,12 +4,18 @@ import rospy
 from sensor_model import SensorModel
 from motion_model import MotionModel
 
-from sensor_msgs.msg import LaserScan
+import numpy as np
+
+from sensor_msgs.msg import  LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseArray
 
 
 class ParticleFilter:
+    # Jank as hell thread safety
+    lidar_lock = False
+    odom_lock = False
     def __init__(self):
         # Get parameters
         self.particle_filter_frame = rospy.get_param("~particle_filter_frame")
@@ -31,10 +37,10 @@ class ParticleFilter:
         scan_topic = rospy.get_param("~scan_topic", "/scan")
         odom_topic = rospy.get_param("~odom_topic", "/odom")
         self.laser_sub = rospy.Subscriber(scan_topic, LaserScan,
-                                          lidar_callback, # TODO: Fill this in
+                                          self.lidar_callback,
                                           queue_size=1)
         self.odom_sub  = rospy.Subscriber(odom_topic, Odometry,
-                                          odom_callback, # TODO: Fill this in
+                                          self.odom_callback,
                                           queue_size=1)
 
         #  *Important Note #2:* You must respond to pose
@@ -43,7 +49,7 @@ class ParticleFilter:
         #     "Pose Estimate" feature in RViz, which publishes to
         #     /initialpose.
         self.pose_sub  = rospy.Subscriber("/initialpose", PoseWithCovarianceStamped,
-                                          pose_init_callback, # TODO: Fill this in
+                                          self.pose_init_callback,
                                           queue_size=1)
 
         #  *Important Note #3:* You must publish your pose estimate to
@@ -71,9 +77,7 @@ class ParticleFilter:
         # Publish a transformation frame between the map
         # and the particle_filter_frame.
 
-        # Jank as hell thread safety
-        self.lidar_lock = False
-        self.odom_lock = False
+        
 
     
     def lidar_callback(self, data):
@@ -125,7 +129,10 @@ class ParticleFilter:
             # update the point cloud
             particles = self.motion_model.evaluate(particles, odom)
 
-            # TODO: add noise somewhere
+            # add noise
+            if not self.deterministic:
+                # TODO: Play with this scale value. Make it something reasonable
+                particles = particles + (np.random.normal(scale=1, size=(self.num_particles, 3)) * (0.2,0.2,0.1))
 
             # publish results
             self.publish_poses()
@@ -157,8 +164,8 @@ class ParticleFilter:
         msg.header.stamp = rospy.get_rostime()
         msg.header.frame_id = ""
         msg.child_frame_id = ""
-        msg.pose.pose.position = 
-        msg.pose.pose.orientation = tf.transformations.euler2quaternion()
+        msg.pose.pose.position = [0,0,0]
+        msg.pose.pose.orientation = tf.transformations.euler2quaternion([0,0,0])
         self.odom_pub.publish(msg)
 
         # TODO: also publish transform?
@@ -172,4 +179,5 @@ class ParticleFilter:
 if __name__ == "__main__":
     rospy.init_node("particle_filter")
     pf = ParticleFilter()
-    rospy.spin()
+    while rospy.is_shutdown():
+        rospy.sleep(0.5)
