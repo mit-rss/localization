@@ -11,6 +11,8 @@ import tf
 from sensor_msgs.msg import  LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import Pose
+import scipy
 from scipy.stats import circmean
 from geometry_msgs.msg import PoseArray
 
@@ -70,14 +72,10 @@ class ParticleFilter:
         # Initialize the models
         self.motion_model = MotionModel()
         self.sensor_model = SensorModel()
-
+        self.odom_prev_time = rospy.get_time()
+        self.particles = np.zeros([self.num_particles,3])
         self.lidar_lock = False
         self.odom_lock = False
-
-        self.odom_prev_time = rospy.get_time()
-
-        self.particles = np.zeros([self.num_particles,3])
-
         # Implement the MCL algorithm
         # using the sensor model and the motion model
         #
@@ -111,10 +109,10 @@ class ParticleFilter:
             theta_indices = (thetas * data.angle_increment / data.angle_max).astype(int)
             observation = np.array(data.ranges)[theta_indices]
             probabilities = self.sensor_model.evaluate(self.particles, observation)
-
-            # normalize
-            probabilities = probababilities / np.sum(probabilities)
             
+            # normalize
+            probabilities = probabilities / np.sum(probabilities)   
+                    
             # resample point cloud
             particle_indices = np.random.choice(self.num_particles, p=probabilities, size=self.num_particles).astype(int)
             self.particles = self.particles[particle_indices]
@@ -174,9 +172,9 @@ class ParticleFilter:
         self.particles = np.product( np.random.normal([3, self.num_particles]), [c_x, c_y, c_theta] ) + center_particle
 
     def publish_poses(self):
-        avg_x = np.mean(self.position(0))
-        avg_y = np.mean(self.position(1))
-        avg_theta = scipy.stats.circmean(theta)
+        avg_x = np.mean(self.particles[0])
+        avg_y = np.mean(self.particles[1])
+        avg_theta = scipy.stats.circmean(self.particles[2])
         # TODO: publish the average point
         msg = Odometry()
 
@@ -184,7 +182,7 @@ class ParticleFilter:
         msg.header.frame_id = ""
         msg.child_frame_id = ""
         msg.pose.pose.position = [avg_x, avg_y, 0]
-        msg.pose.pose.orientation = tf.transformations.euler2quaternion([0,0,avg_theta])
+        msg.pose.pose.orientation = tf.transformations.quaternion_from_euler(0,0,avg_theta)
         self.odom_pub.publish(msg)
 
         # TODO: also publish transform?
@@ -193,24 +191,26 @@ class ParticleFilter:
         br.sendTransform((avg_x, avg_y, 0),
             tf.transformations.quaternion_from_euler(0, 0, avg_theta),
             rospy.Time.now(),
-            data,
-            "base_link_pf"))
+            "base_link_pf",
+            "map")
 
         # TODO: publish all the points
         msg = PoseArray()
 
         msg.header.stamp = rospy.get_rostime()
-        msg.header.frame_id = ""
-        msg.child_frame_id = ""
-        msg.pose.point = [self.position(0), self.position(1), 0]
-        msg.pose.quaternion = [self.position(0), self.position(1), 0, theta]
-
+        msg.header.frame_id = "map"
+        # msg.child_frame_id = ""
+        msg.poses = [Pose()]
+        msg.poses[0].position.x = self.particles[0][0]
+        msg.poses[0].position.y = self.particles[0][1]
+        msg.poses[0].orientation = tf.transformations.quaternion_from_euler(0, 0, self.particles[0][2])
         self.cloud_pub.publish(msg)
-        pass
+        
 
 if __name__ == "__main__":
     rospy.init_node("particle_filter")
     pf = ParticleFilter()
-    rospy.sleep(3)
+    # rospy.sleep(3)
+    rospy.spin()
     # while not rospy.is_shutdown():
     #     rospy.sleep(0.5)
