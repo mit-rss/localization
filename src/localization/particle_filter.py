@@ -5,6 +5,7 @@ from sensor_model import SensorModel
 from motion_model import MotionModel
 
 import numpy as np
+import traceback
 
 from sensor_msgs.msg import  LaserScan
 from nav_msgs.msg import Odometry
@@ -14,8 +15,11 @@ from geometry_msgs.msg import PoseArray
 
 class ParticleFilter:
     # Jank as hell thread safety
-    lidar_lock = False
-    odom_lock = False
+    lidar_lock = True
+    odom_lock = True
+    odom_prev_time = 0
+    
+
     def __init__(self):
         # Get parameters
         self.particle_filter_frame = rospy.get_param("~particle_filter_frame")
@@ -65,7 +69,12 @@ class ParticleFilter:
         self.motion_model = MotionModel()
         self.sensor_model = SensorModel()
 
+        self.lidar_lock = False
+        self.odom_lock = False
+
         self.odom_prev_time = rospy.get_time()
+
+        self.particles = np.zeros([self.num_particles,3])
 
         # Implement the MCL algorithm
         # using the sensor model and the motion model
@@ -98,16 +107,20 @@ class ParticleFilter:
             thetas = np.linspace(-self.scan_field_of_view/2., self.scan_field_of_view/2., self.num_beams_per_particle)
             # assumes angle_min = -angle_max
             theta_indices = (thetas * data.angle_increment / data.angle_max).astype(int)
-            observation = data.ranges[theta_indices]
+            observation = np.array(data.ranges)[theta_indices]
             probabilities = self.sensor_model.evaluate(self.particles, observation)
+
+            # normalize
+            probabilities = probababilities / np.sum(probabilities)
             
             # resample point cloud
-            particle_indices = np.random.choice(self.num_particles, p=probabilities, size=num_particles)
+            particle_indices = np.random.choice(self.num_particles, p=probabilities, size=self.num_particles).astype(int)
             self.particles = self.particles[particle_indices]
 
         except Exception as e:
             rospy.logwarn("lidar_callback threw an exception")
             rospy.logwarn(e)
+            traceback.print_exc()
         finally:
             # release the lidar_lock, so other lidar_callback processes can be created
             self.lidar_lock = False
@@ -125,20 +138,21 @@ class ParticleFilter:
             self.odom_prev_time = time
 
             # get odom
-            odom = np.array([data.twist.linear.x, data.twist.linear.y, data.twist.angular.z]) * dt
+            odom = np.array([data.twist.twist.linear.x, data.twist.twist.linear.y, data.twist.twist.angular.z]) * dt
             # update the point cloud
-            particles = self.motion_model.evaluate(particles, odom)
+            self.particles = self.motion_model.evaluate(self.particles, odom)
 
             # add noise
             if not self.deterministic:
                 # TODO: Play with this scale value. Make it something reasonable
-                particles = particles + (np.random.normal(scale=1, size=(self.num_particles, 3)) * (0.2,0.2,0.1))
+                self.particles += (np.random.normal(scale=1, size=(self.num_particles, 3)) * (0.2,0.2,0.1))
 
             # publish results
             self.publish_poses()
         except Exception as e:
             rospy.logwarn("odom_callback threw an exception")
             rospy.logwarn(e)
+            traceback.print_exc()
         finally:
             self.odom_lock = False
 
@@ -179,5 +193,6 @@ class ParticleFilter:
 if __name__ == "__main__":
     rospy.init_node("particle_filter")
     pf = ParticleFilter()
-    while rospy.is_shutdown():
-        rospy.sleep(0.5)
+    rospy.sleep(3)
+    # while not rospy.is_shutdown():
+    #     rospy.sleep(0.5)
