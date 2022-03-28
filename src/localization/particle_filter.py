@@ -125,6 +125,8 @@ class ParticleFilter:
             # update the point cloud
             particles = self.motion_model.evaluate(particles, odom)
 
+            # TODO: add noise somewhere
+
             # publish results
             self.publish_poses()
         except Exception as e:
@@ -149,15 +151,15 @@ class ParticleFilter:
         self.particles = np.product( np.random.normal([3, self.num_particles]), [c_x, c_y, c_theta] ) + center_particle
 
     def publish_poses(self):
-        # TODO: publish the location of the most probable point
+        # TODO: publish the average point
         msg = Odometry()
 
         msg.header.stamp = rospy.get_rostime()
         msg.header.frame_id = ""
         msg.child_frame_id = ""
-        msg.pose.pose.position
+        msg.pose.pose.position = 
         msg.pose.pose.orientation = tf.transformations.euler2quaternion()
-        self.odom_pub.publish(msg)[]
+        self.odom_pub.publish(msg)
 
         # TODO: also publish transform?
 
