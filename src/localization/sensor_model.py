@@ -168,8 +168,8 @@ class SensorModel:
         map_scale =  self.map_resolution * self.lidar_scale_to_map_scale
 
         # convert to pixels
-        scans_indices = (scans / map_scale).astype(int)
-        obs_indices = (observation / map_scale).astype(int)
+        scans_indices = np.round((scans / map_scale)).astype(int)
+        obs_indices = np.round((observation / map_scale)).astype(int)
 
         # bound scans and observation
         scans_indices = np.clip( scans_indices, 0, self.table_width - 1 )
@@ -194,10 +194,10 @@ class SensorModel:
             #     np.power( self.sensor_model_table[(obs_indices,scan)], self.squash_power)
             # )
 
-        
+
         i = 31
-        rospy.logwarn(probabilities[i])
-        rospy.logwarn(TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES[i])
+        rospy.logwarn(np.log( probabilities[i]) )
+        rospy.logwarn(np.log( TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES[i]) )
 
         if False:
             # Plot our data
