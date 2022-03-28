@@ -194,7 +194,7 @@ class ParticleFilter:
   12                      tf.transformations.quaternion_from_euler(0, 0, avg_theta),
   13                      rospy.Time.now(),
   14                      data,
-  15                      "map")
+  15                      "base_link_pf")
 
         # TODO: publish all the points
         msg = PoseArray()
