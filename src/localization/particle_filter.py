@@ -190,11 +190,11 @@ class ParticleFilter:
         # TODO: also publish transform?
 
         br = tf.TransformBroadcaster()
-        br.sendTransform(avg_x, avg_y, 0),
-  12                      tf.transformations.quaternion_from_euler(0, 0, avg_theta),
-  13                      rospy.Time.now(),
-  14                      data,
-  15                      "base_link_pf")
+        br.sendTransform((avg_x, avg_y, 0),
+            tf.transformations.quaternion_from_euler(0, 0, avg_theta),
+            rospy.Time.now(),
+            data,
+            "base_link_pf"))
 
         # TODO: publish all the points
         msg = PoseArray()
