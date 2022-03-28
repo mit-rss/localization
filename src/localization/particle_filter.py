@@ -7,6 +7,7 @@ from motion_model import MotionModel
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
+from scipy.stats import circmean
 
 
 class ParticleFilter:
@@ -151,20 +152,36 @@ class ParticleFilter:
         self.particles = np.product( np.random.normal([3, self.num_particles]), [c_x, c_y, c_theta] ) + center_particle
 
     def publish_poses(self):
+        avg_x = np.mean(self.position(0))
+        avg_y = np.mean(self.position(1))
+        avg_theta = scipy.stats.circmean(theta)
         # TODO: publish the average point
         msg = Odometry()
 
         msg.header.stamp = rospy.get_rostime()
         msg.header.frame_id = ""
         msg.child_frame_id = ""
-        msg.pose.pose.position = 
-        msg.pose.pose.orientation = tf.transformations.euler2quaternion()
+        msg.pose.pose.position = [avg_x, avg_y, 0]
+        msg.pose.pose.orientation = tf.transformations.euler2quaternion([0,0,avg_theta])
         self.odom_pub.publish(msg)
 
         # TODO: also publish transform?
 
+        br = tf.TransformBroadcaster()
+        br.sendTransform(avg_x, avg_y, 0),
+  12                      tf.transformations.quaternion_from_euler(0, 0, avg_theta),
+  13                      rospy.Time.now(),
+  14                      data,
+  15                      "map")
+
         # TODO: publish all the points
         msg = PoseArray()
+
+        msg.header.stamp = rospy.get_rostime()
+        msg.header.frame_id = ""
+        msg.child_frame_id = ""
+        msg.pose.point = [self.position(0), self.position(1), 0]
+        msg.pose.quaternion = [self.position(0), self.position(1), 0, theta]
 
         self.cloud_pub.publish(msg)
         pass
