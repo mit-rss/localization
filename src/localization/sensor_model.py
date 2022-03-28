@@ -115,21 +115,21 @@ class SensorModel:
         self.sensor_model_table = np.divide(self.sensor_model_table, table_sums)
         
 
-        if __name__ == '__main__':
-            # Plot our data
-            fig = plt.figure(num=1, clear=True)
-            (x,y) = np.meshgrid(range(self.table_width), range(self.table_width))
+        # if __name__ == '__main__':
+        #     # Plot our data
+        #     fig = plt.figure(num=1, clear=True)
+        #     (x,y) = np.meshgrid(range(self.table_width), range(self.table_width))
             
-            ax = fig.add_subplot(1, 2, 1, projection='3d')
-            ax.plot_surface(x,y,self.sensor_model_table)
+        #     ax = fig.add_subplot(1, 2, 1, projection='3d')
+        #     ax.plot_surface(x,y,self.sensor_model_table)
 
-            # Plot the correct data
-            ax2 = fig.add_subplot(1, 2, 2, projection='3d')
-            ax2.plot_surface(x,y,np.array(TEST_PRECOMPUTED_TABLE))
-            # ax2.plot_surface(x,y,np.ones([self.table_width, self.table_width]))
+        #     # Plot the correct data
+        #     ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+        #     ax2.plot_surface(x,y,np.array(TEST_PRECOMPUTED_TABLE))
+        #     # ax2.plot_surface(x,y,np.ones([self.table_width, self.table_width]))
             
-            fig.tight_layout()
-            plt.show()
+        #     fig.tight_layout()
+        #     plt.show()
     
     def evaluate(self, particles, observation):
         """
@@ -195,31 +195,31 @@ class SensorModel:
             # )
 
 
-        i = 31
-        rospy.logwarn(np.log( probabilities[i]) )
-        rospy.logwarn(np.log( TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES[i]) )
+        # i = 31
+        # rospy.logwarn(np.log( probabilities[i]) )
+        # rospy.logwarn(np.log( TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES[i]) )
 
-        if False:
-            # Plot our data
-            fig = plt.figure(num=1, clear=True)
-            x = range(n)
-            r = [0,3 * 10**-80]
+        # if False:
+        #     # Plot our data
+        #     fig = plt.figure(num=1, clear=True)
+        #     x = range(n)
+        #     r = [0,3 * 10**-80]
             
-            ax = fig.add_subplot(2, 2, 1)
-            ax.plot(x,probabilities)
-            ax = fig.add_subplot(2,2,3)
-            ax.plot(x,np.log(probabilities))
-            # ax.set_ylim(r)
+        #     ax = fig.add_subplot(2, 2, 1)
+        #     ax.plot(x,probabilities)
+        #     ax = fig.add_subplot(2,2,3)
+        #     ax.plot(x,np.log(probabilities))
+        #     # ax.set_ylim(r)
 
-            # Plot the correct data
-            ax2 = fig.add_subplot(2, 2, 2)
-            ax2.plot(x,TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES)
-            ax2 = fig.add_subplot(2, 2, 4)
-            ax2.plot(x,np.log(TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES))
-            # ax2.set_ylim(r)
+        #     # Plot the correct data
+        #     ax2 = fig.add_subplot(2, 2, 2)
+        #     ax2.plot(x,TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES)
+        #     ax2 = fig.add_subplot(2, 2, 4)
+        #     ax2.plot(x,np.log(TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES))
+        #     # ax2.set_ylim(r)
 
-            fig.tight_layout()
-            plt.show()
+        #     fig.tight_layout()
+        #     plt.show()
 
         return probabilities
 

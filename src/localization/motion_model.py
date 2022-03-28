@@ -50,11 +50,6 @@ class MotionModel:
         # combine all the delta column vectors into an n*3 matrix
         # np.stack defaults to an n*3*1 matrix for whatever reason
         delta = np.reshape( np.stack([d_x, d_y,d_thetas], axis=1), (n,3) )
-
-        # add noise
-        if not self.deterministic:
-            # TODO: Play with this scale value. Make it something reasonable
-            delta = delta + np.random.normal(scale=0.1, size=(n, 3)) 
         
         return particles + delta
         
