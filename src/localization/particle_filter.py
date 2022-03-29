@@ -150,7 +150,7 @@ class ParticleFilter:
             # add noise
             if not self.deterministic:
                 # TODO: Play with this scale value. Make it something reasonable
-                self.particles += (np.random.normal(scale=1, size=(self.num_particles, 3)) * (0.2,0.2,0.1))
+                self.particles += self.generate_noise([0.2, 0.2, 0.1])
 
             # publish results
             self.publish_poses()
@@ -176,11 +176,15 @@ class ParticleFilter:
         c_theta = covariance[5]
         
         # Combine to set particle array
+        noise = self.generate_noise([c_x, c_y, c_theta])
+        self.particles = noise + np.tile(center_particle, [1, self.num_particles])
+    
+    def generate_noise(self, weights):
         noise = np.random.normal(size=[3, self.num_particles])
         rospy.logwarn(np.shape(noise))
-        noise = np.dot( noise, [c_x, c_y, c_theta] )
-        rospy.logwarn(np.shape(noise))
-        self.particles = noise + np.tile(center_particle, [1, self.num_particles])
+        noise = np.dot( noise, np.tile(weights, [1, self.num_particles]) )
+        
+        return noise
 
     def publish_poses(self):
         avg_x = np.mean(self.particles[0])
