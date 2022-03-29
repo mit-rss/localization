@@ -22,6 +22,12 @@ class ParticleFilter:
     lidar_lock = True
     odom_lock = True
     odom_prev_time = 0
+
+
+    # TODO: tune! This is the noise that sets the starting cloud
+    init_noise = [1., 1., 1.]
+    # TODO: tune! This is the noise that shifts our points around when processing odometry
+    odom_noise = [1.,1.,1.]
     
 
     def __init__(self):
@@ -86,9 +92,6 @@ class ParticleFilter:
         #
         # Publish a transformation frame between the map
         # and the particle_filter_frame.
-
-        
-
     
     def lidar_callback(self, data):
 
@@ -149,8 +152,7 @@ class ParticleFilter:
 
             # add noise
             if not self.deterministic:
-                # TODO: Play with this scale value. Make it something reasonable
-                self.particles += self.generate_noise([0.2, 0.2, 0.1])
+                self.particles += self.generate_noise(self.odom_noise)
 
             # publish results
             self.publish_poses()
@@ -166,17 +168,17 @@ class ParticleFilter:
         pose = data.pose.pose
         q = pose.orientation
 
-        theta = tf.transformations.euler_from_quaternion([q.w, q.x, q.y, q.z])[2]
+        theta = tf.transformations.euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
         center_particle = [pose.position.x, pose.position.y, theta]
 
         # Pull covariance from data
-        covariance = data.pose.covariance
-        c_x = covariance[0]
-        c_y = covariance[1]
-        c_theta = covariance[5]
+        # covariance = data.pose.covariance
+        # c_x = covariance[0]      +1
+        # c_y = covariance[1]      +1
+        # c_theta = covariance[5]  +1
         
         # Combine to set particle array
-        noise = self.generate_noise([c_x, c_y, c_theta])
+        noise = self.generate_noise(self.init_noise)
         self.particles = noise + center_particle
     
     def generate_noise(self, weights):
@@ -184,12 +186,12 @@ class ParticleFilter:
         return noise * weights
 
     def publish_poses(self):
-        avg_x = np.mean(self.particles[0])
-        avg_y = np.mean(self.particles[1])
-        avg_theta = scipy.stats.circmean(self.particles[2])
-        # TODO: publish the average point
+        # publish the average point
+        avg_x = np.mean(self.particles[:,0])
+        avg_y = np.mean(self.particles[:,1])
+        avg_theta = scipy.stats.circmean(self.particles[:,2])
+        
         msg = Odometry()
-
         msg.header.stamp = rospy.get_rostime()
         msg.header.frame_id = "map"
         # msg.child_frame_id = ""
@@ -203,8 +205,7 @@ class ParticleFilter:
         msg.pose.pose.orientation.w = quat[3]
         self.odom_pub.publish(msg)
 
-        # TODO: also publish transform?
-
+        # Publish transform
         br = tf.TransformBroadcaster()
         br.sendTransform((avg_x, avg_y, 0),
             tf.transformations.quaternion_from_euler(0, 0, avg_theta),
@@ -212,7 +213,7 @@ class ParticleFilter:
             "base_link_pf",
             "map")
 
-        # TODO: publish all the points
+        # Publish all the particles
         msg = PoseArray()
 
         msg.header.stamp = rospy.get_rostime()

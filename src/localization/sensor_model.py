@@ -22,8 +22,7 @@ class SensorModel:
         self.lidar_scale_to_map_scale = rospy.get_param("~lidar_scale_to_map_scale", 1.)
 
         ####################################
-        # TODO
-        # Adjust these parameters
+        # TODO: tune these parameters
         # self.alpha_hit = 1
         # self.alpha_short = 0
         # self.alpha_max = 0
@@ -35,8 +34,8 @@ class SensorModel:
 
         self.sigma_hit = 8.0
 
-        self.squash_power = 1/2.2
-        # self.squash_power = 1/2.19
+        # TODO: tune!
+        self.squash_power = 1/4.5
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
