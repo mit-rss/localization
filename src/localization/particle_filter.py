@@ -177,14 +177,11 @@ class ParticleFilter:
         
         # Combine to set particle array
         noise = self.generate_noise([c_x, c_y, c_theta])
-        self.particles = noise + np.tile(center_particle, [1, self.num_particles])
+        self.particles = noise + center_particle
     
     def generate_noise(self, weights):
-        noise = np.random.normal(size=[3, self.num_particles])
-        rospy.logwarn(np.shape(noise))
-        noise = np.dot( noise, np.tile(weights, [1, self.num_particles]) )
-        
-        return noise
+        noise = np.random.normal(size=[self.num_particles, 3])
+        return noise * weights
 
     def publish_poses(self):
         avg_x = np.mean(self.particles[0])
