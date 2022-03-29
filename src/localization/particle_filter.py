@@ -28,6 +28,7 @@ class ParticleFilter:
     init_noise = [2., 2., np.pi]
     # TODO: tune! This is the noise that shifts our points around when processing odometry particle
     particle_noise = [0.5,0.5,0.2]
+    odom_noise = [0.5,0.5,0.2]
     
 
     def __init__(self):
@@ -153,6 +154,9 @@ class ParticleFilter:
 
             # get odom
             odom = np.array([data.twist.twist.linear.x, data.twist.twist.linear.y, data.twist.twist.angular.z]) * dt
+            odom[0] += np.random.normal()*self.odom_noise[0]
+            odom[1] += np.random.normal()*self.odom_noise[1]
+            odom[2] += np.random.normal()*self.odom_noise[2]
             # update the point cloud
             self.particles = self.motion_model.evaluate(self.particles, odom)
 
