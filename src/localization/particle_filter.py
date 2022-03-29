@@ -72,6 +72,7 @@ class ParticleFilter:
         # Initialize the models
         self.motion_model = MotionModel()
         self.sensor_model = SensorModel()
+
         self.odom_prev_time = rospy.get_time()
         self.particles = np.zeros([self.num_particles,3])
         self.lidar_lock = False
@@ -159,7 +160,9 @@ class ParticleFilter:
     def pose_init_callback(self, data):
         # Pull position from data
         pose = data.pose.pose
-        theta = tf.transformations.euler_from_quaternion(pose.orientation)[2]
+        q = pose.orientation
+
+        theta = tf.transformations.euler_from_quaternion([q.w, q.x, q.y, q.z])[2]
         center_particle = [pose.position.x, pose.position.y, theta]
 
         # Pull covariance from data
@@ -169,7 +172,11 @@ class ParticleFilter:
         c_theta = covariance[5]
         
         # Combine to set particle array
-        self.particles = np.product( np.random.normal([3, self.num_particles]), [c_x, c_y, c_theta] ) + center_particle
+        noise = np.random.normal([3, self.num_particles])
+        rospy.logwarn(np.shape(noise))
+        noise = np.dot( noise, [c_x, c_y, c_theta] )
+        rospy.logwarn(np.shape(noise))
+        self.particles = noise + np.tile(center_particle, [1, self.num_particles])
 
     def publish_poses(self):
         avg_x = np.mean(self.particles[0])
@@ -179,8 +186,8 @@ class ParticleFilter:
         msg = Odometry()
 
         msg.header.stamp = rospy.get_rostime()
-        msg.header.frame_id = ""
-        msg.child_frame_id = ""
+        msg.header.frame_id = "map"
+        # msg.child_frame_id = ""
         msg.pose.pose.position = [avg_x, avg_y, 0]
         msg.pose.pose.orientation = tf.transformations.quaternion_from_euler(0,0,avg_theta)
         self.odom_pub.publish(msg)
@@ -200,10 +207,12 @@ class ParticleFilter:
         msg.header.stamp = rospy.get_rostime()
         msg.header.frame_id = "map"
         # msg.child_frame_id = ""
-        msg.poses = [Pose()]
-        msg.poses[0].position.x = self.particles[0][0]
-        msg.poses[0].position.y = self.particles[0][1]
-        msg.poses[0].orientation = tf.transformations.quaternion_from_euler(0, 0, self.particles[0][2])
+        msg.poses = []
+        for i in range(self.num_particles):
+            msg.poses.append( Pose() )
+            msg.poses[i].position.x = self.particles[i][0]
+            msg.poses[i].position.y = self.particles[i][1]
+            msg.poses[i].orientation = tf.transformations.quaternion_from_euler(0, 0, self.particles[i][2])
         self.cloud_pub.publish(msg)
         
 
