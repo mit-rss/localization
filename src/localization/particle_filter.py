@@ -26,8 +26,8 @@ class ParticleFilter:
 
     # TODO: tune! This is the noise that sets the starting cloud
     init_noise = [2., 2., np.pi]
-    # TODO: tune! This is the noise that shifts our points around when processing odometry
-    odom_noise = [0.5,0.5,0.2]
+    # TODO: tune! This is the noise that shifts our points around when processing odometry particle
+    particle_noise = [0.5,0.5,0.2]
     
 
     def __init__(self):
@@ -158,7 +158,7 @@ class ParticleFilter:
 
             # add noise
             if not self.deterministic:
-                self.particles += self.generate_noise(self.odom_noise)
+                self.particles += self.generate_noise(self.particle_noise)
 
             # publish results
             self.publish_poses()
