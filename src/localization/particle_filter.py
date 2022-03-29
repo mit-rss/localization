@@ -172,7 +172,7 @@ class ParticleFilter:
         c_theta = covariance[5]
         
         # Combine to set particle array
-        noise = np.random.normal([3, self.num_particles])
+        noise = np.random.normal(size=[3, self.num_particles])
         rospy.logwarn(np.shape(noise))
         noise = np.dot( noise, [c_x, c_y, c_theta] )
         rospy.logwarn(np.shape(noise))
@@ -188,7 +188,9 @@ class ParticleFilter:
         msg.header.stamp = rospy.get_rostime()
         msg.header.frame_id = "map"
         # msg.child_frame_id = ""
-        msg.pose.pose.position = [avg_x, avg_y, 0]
+        msg.pose.pose.position.x = avg_x
+        msg.pose.pose.position.y = avg_y
+        msg.pose.pose.position.z = 0
         msg.pose.pose.orientation = tf.transformations.quaternion_from_euler(0,0,avg_theta)
         self.odom_pub.publish(msg)
 
