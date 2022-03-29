@@ -35,7 +35,8 @@ class SensorModel:
         self.sigma_hit = 8.0
 
         # TODO: tune!
-        self.squash_power = 1/4.5
+        # self.squash_power = 1/2.2
+        self.squash_power = 1/2.8
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201

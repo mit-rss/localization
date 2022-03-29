@@ -25,9 +25,9 @@ class ParticleFilter:
 
 
     # TODO: tune! This is the noise that sets the starting cloud
-    init_noise = [1., 1., 1.]
+    init_noise = [2., 2., np.pi]
     # TODO: tune! This is the noise that shifts our points around when processing odometry
-    odom_noise = [1.,1.,1.]
+    odom_noise = [0.5,0.5,0.2]
     
 
     def __init__(self):
@@ -113,9 +113,15 @@ class ParticleFilter:
         try:
             # downsample lidar data to num_beams_per_particle 
             thetas = np.linspace(-self.scan_field_of_view/2., self.scan_field_of_view/2., self.num_beams_per_particle)
-            # assumes angle_min = -angle_max
-            theta_indices = (thetas * data.angle_increment / data.angle_max).astype(int)
+
+            # retrieve ranges at desired angles
+            angle_range = data.angle_max - data.angle_min
+            n = len(data.ranges)
+
+            theta_indices = ((thetas - data.angle_min) * n / angle_range).astype(int)
             observation = np.array(data.ranges)[theta_indices]
+
+            # compute probabilities
             probabilities = self.sensor_model.evaluate(self.particles, observation)
             
             # normalize
