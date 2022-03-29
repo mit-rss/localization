@@ -91,9 +91,6 @@ class ParticleFilter:
 
     
     def lidar_callback(self, data):
-        # sensor model is not initialized
-        if not self.sensor_model.map_set:
-            return
 
         # an instance of the odom function is already running, wait for it to finish
         while self.odom_lock:
@@ -103,6 +100,10 @@ class ParticleFilter:
         if self.lidar_lock:
             return
 
+        # sensor model is not initialized
+        if not self.sensor_model.map_set:
+            return
+        
         # claim the lidar lock. No other processes will be created until this lock is released
         self.lidar_lock = True
 
