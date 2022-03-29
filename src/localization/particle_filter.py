@@ -191,7 +191,11 @@ class ParticleFilter:
         msg.pose.pose.position.x = avg_x
         msg.pose.pose.position.y = avg_y
         msg.pose.pose.position.z = 0
-        msg.pose.pose.orientation = tf.transformations.quaternion_from_euler(0,0,avg_theta)
+        quat = tf.transformations.quaternion_from_euler(0,0,avg_theta)
+        msg.pose.pose.orientation.x = quat[0]
+        msg.pose.pose.orientation.y = quat[1]
+        msg.pose.pose.orientation.z = quat[2]
+        msg.pose.pose.orientation.w = quat[3]
         self.odom_pub.publish(msg)
 
         # TODO: also publish transform?
@@ -214,7 +218,11 @@ class ParticleFilter:
             msg.poses.append( Pose() )
             msg.poses[i].position.x = self.particles[i][0]
             msg.poses[i].position.y = self.particles[i][1]
-            msg.poses[i].orientation = tf.transformations.quaternion_from_euler(0, 0, self.particles[i][2])
+            quat = tf.transformations.quaternion_from_euler(0, 0, self.particles[i][2])
+            msg.poses[i].orientation.x = quat[0]
+            msg.poses[i].orientation.y = quat[1]
+            msg.poses[i].orientation.z = quat[2]
+            msg.poses[i].orientation.w = quat[3]
         self.cloud_pub.publish(msg)
         
 
