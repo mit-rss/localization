@@ -180,11 +180,11 @@ class ParticleFilter:
             self.odom_lock = False
     
     def log_error(self):
-		self.listener.waitForTransform("base_link", "map", rospy.Time(), rospy.Duration(4.0))
-		t = self.listener.getLatestCommonTime("base_link", "map")
-		exp_position, exp_quaternion = self.listener.lookupTransform("base_link", "map", t)
+        self.listener.waitForTransform("base_link", "map", rospy.Time(), rospy.Duration(4.0))
+        t = self.listener.getLatestCommonTime("base_link", "map")
+        exp_position, exp_quaternion = self.listener.lookupTransform("base_link", "map", t)
         exp_angle = tf.euler_from_quaternion(exp_quaternion)[2]
-        act_position=[self.avg_x, self.avg_y, 0]
+        act_position = [self.avg_x, self.avg_y, 0]
         act_angle = avg_theta
         x_offset = act_position[0]-exp_position[0]
         y_offset = act_position[1]-exp_position[1]
