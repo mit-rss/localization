@@ -183,15 +183,16 @@ class ParticleFilter:
         self.listener.waitForTransform("base_link", "map", rospy.Time(), rospy.Duration(4.0))
         t = self.listener.getLatestCommonTime("base_link", "map")
         exp_position, exp_quaternion = self.listener.lookupTransform("base_link", "map", t)
-        exp_angle = tf.euler_from_quaternion(exp_quaternion)[2]
+        exp_angle = tf.transformations.euler_from_quaternion(exp_quaternion)[2]
         act_position = [self.avg_x, self.avg_y, 0]
-        act_angle = avg_theta
+        act_angle = self.avg_theta
         x_offset = act_position[0]-exp_position[0]
         y_offset = act_position[1]-exp_position[1]
         theta_offset = act_angle-exp_angle
-        self.error_log.write("x offset: ", x_offset)
-        self.error_log.write("y offset: ", y_offset)
-        self.error_log.write("theta offset: ", theta_offset)
+        self.error_log.write(str(rospy.get_rostime())+",")
+        self.error_log.write(str(x_offset)+",")
+        self.error_log.write(str(y_offset)+",")
+        self.error_log.write(str(theta_offset)+","+"\n")
 
     def pose_init_callback(self, data):
         # Pull position from data
@@ -234,6 +235,7 @@ class ParticleFilter:
         msg.pose.pose.orientation.z = quat[2]
         msg.pose.pose.orientation.w = quat[3]
         self.odom_pub.publish(msg)
+        self.log_error()
 
         # Publish transform
         br = tf.TransformBroadcaster()
@@ -260,7 +262,6 @@ class ParticleFilter:
             msg.poses[i].orientation.z = quat[2]
             msg.poses[i].orientation.w = quat[3]
         self.cloud_pub.publish(msg)
-        log_error()
 
 
 if __name__ == "__main__":
