@@ -1,13 +1,10 @@
+import rospy
+import numpy as np
 class MotionModel:
 
     def __init__(self):
-
         ####################################
-        # TODO
-        # Do any precomputation for the motion
-        # model here.
-
-        pass
+        self.deterministic = rospy.get_param("~deterministic", True)
 
         ####################################
 
@@ -31,8 +28,29 @@ class MotionModel:
         """
         
         ####################################
-        # TODO
 
-        raise NotImplementedError
+        # number of particles
+        n = len(particles)
 
+        # extract columns from particles
+        x_old = particles[:,0]
+        y_old = particles[:,1]
+        theta_old = particles[:,2]
+
+        c = np.cos(theta_old) # column of all cos's of thetas
+        s = np.sin(theta_old) # column of all sin's of thetas
+        
+        # calculate delta column vectors explicitly instead of using rotation matrices
+        d_x = np.reshape( odometry[0]*c - odometry[1]*s ,(n,1))
+        d_y = np.reshape( odometry[0]*s + odometry[1]*c ,(n,1))
+
+        # make column vector of d_theta
+        d_thetas = np.tile(odometry[2], (n,1))
+        
+        # combine all the delta column vectors into an n*3 matrix
+        # np.stack defaults to an n*3*1 matrix for whatever reason
+        delta = np.reshape( np.stack([d_x, d_y,d_thetas], axis=1), (n,3) )
+        
+        return particles + delta
+        
         ####################################

@@ -6,24 +6,37 @@ import tf
 from nav_msgs.msg import OccupancyGrid
 from tf.transformations import quaternion_from_euler
 
+from test_init import *
+from mpl_toolkits.mplot3d import axes3d
+import matplotlib.pyplot as plt
+
 class SensorModel:
 
 
     def __init__(self):
         # Fetch parameters
-        self.map_topic = rospy.get_param("~map_topic")
-        self.num_beams_per_particle = rospy.get_param("~num_beams_per_particle")
-        self.scan_theta_discretization = rospy.get_param("~scan_theta_discretization")
-        self.scan_field_of_view = rospy.get_param("~scan_field_of_view")
+        self.map_topic = rospy.get_param("~map_topic", "/map")
+        self.num_beams_per_particle = rospy.get_param("~num_beams_per_particle", 100)
+        self.scan_theta_discretization = rospy.get_param("~scan_theta_discretization", 500)
+        self.scan_field_of_view = rospy.get_param("~scan_field_of_view", 4.71)
+        self.lidar_scale_to_map_scale = rospy.get_param("~lidar_scale_to_map_scale", 1.)
 
         ####################################
-        # TODO
-        # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 0
-        self.alpha_rand = 0
-        self.sigma_hit = 0
+        # TODO: tune these parameters
+        # self.alpha_hit = 1
+        # self.alpha_short = 0
+        # self.alpha_max = 0
+        # self.alpha_rand = 0
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
+
+        self.sigma_hit = 8.0
+
+        # TODO: tune!
+        # self.squash_power = 1/2.2
+        self.squash_power = 1/2.8
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
@@ -50,6 +63,7 @@ class SensorModel:
                 self.map_callback,
                 queue_size=1)
 
+
     def precompute_sensor_model(self):
         """
         Generate and store a table which represents the sensor model.
@@ -69,8 +83,54 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
-        raise NotImplementedError
+        
+        hit_table = np.zeros([self.table_width, self.table_width])
+        short_table = np.zeros([self.table_width, self.table_width])
 
+        # Precompute random and max probability tables
+        max_table = np.concatenate((
+            np.zeros([self.table_width-1, self.table_width]),
+            np.ones([1,self.table_width])),
+        axis=0)
+        rand_table = np.ones([self.table_width, self.table_width]) / (self.table_width-1)
+        
+        # 2*sigma^2. For convenience
+        ssigma2 = 2*(self.sigma_hit**2)
+
+        # TODO: Vectorize
+        for z_k in range(self.table_width): # rows
+            for d in range(self.table_width): # columns
+                hit_table[z_k,d] = np.exp( -((z_k-d)**2)/(ssigma2) ) / np.sqrt(np.pi * ssigma2)
+
+                short_table[z_k,d] = (2./d * (1. - float(z_k)/d)) if (d > 0 and z_k <= d) else 0
+
+        # normalize p_hit
+        hit_sums = np.sum(hit_table, axis=0)
+        hit_table = np.divide(hit_table, hit_sums)
+        
+        self.sensor_model_table = self.alpha_hit*hit_table + self.alpha_short*short_table + self.alpha_max*max_table + self.alpha_rand*rand_table
+        
+        # normalize table
+        table_sums = np.sum(self.sensor_model_table, axis=0)
+        self.sensor_model_table = np.divide(self.sensor_model_table, table_sums)
+        
+
+        # if __name__ == '__main__':
+        #     # Plot our data
+        #     fig = plt.figure(num=1, clear=True)
+        #     (x,y) = np.meshgrid(range(self.table_width), range(self.table_width))
+            
+        #     ax = fig.add_subplot(1, 2, 1, projection='3d')
+        #     ax.plot_surface(x,y,self.sensor_model_table)
+
+        #     # Plot the correct data
+        #     ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+        #     ax2.plot_surface(x,y,np.array(TEST_PRECOMPUTED_TABLE))
+        #     # ax2.plot_surface(x,y,np.ones([self.table_width, self.table_width]))
+            
+        #     fig.tight_layout()
+        #     plt.show()
+    
     def evaluate(self, particles, observation):
         """
         Evaluate how likely each particle is given
@@ -96,14 +156,72 @@ class SensorModel:
             return
 
         ####################################
-        # TODO
         # Evaluate the sensor model here!
         #
         # You will probably want to use this function
         # to perform ray tracing from all the particles.
         # This produces a matrix of size N x num_beams_per_particle 
-
+        n = len(particles)
         scans = self.scan_sim.scan(particles)
+        
+        # TODO: Map resolution? Who? Where?
+        map_scale =  self.map_resolution * self.lidar_scale_to_map_scale
+
+        # convert to pixels
+        scans_indices = np.round((scans / map_scale)).astype(int)
+        obs_indices = np.round((observation / map_scale)).astype(int)
+
+        # bound scans and observation
+        scans_indices = np.clip( scans_indices, 0, self.table_width - 1 )
+        obs_indices = np.clip( obs_indices, 0, self.table_width - 1 )
+        
+        
+        probabilities = np.zeros(n)
+
+        # foreach particle, compute probabilities
+        # TODO: Vectorize
+        for i in range(n):
+            scan = scans_indices[i,:]
+
+
+            probabilities[i] = np.exp2(
+                self.squash_power * np.sum(
+                    np.log2( self.sensor_model_table[(obs_indices,scan)] )
+                )
+            )
+            
+            # probabilities[i] = np.product(
+            #     np.power( self.sensor_model_table[(obs_indices,scan)], self.squash_power)
+            # )
+
+
+        # i = 31
+        # rospy.logwarn(np.log( probabilities[i]) )
+        # rospy.logwarn(np.log( TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES[i]) )
+
+        # if False:
+        #     # Plot our data
+        #     fig = plt.figure(num=1, clear=True)
+        #     x = range(n)
+        #     r = [0,3 * 10**-80]
+            
+        #     ax = fig.add_subplot(2, 2, 1)
+        #     ax.plot(x,probabilities)
+        #     ax = fig.add_subplot(2,2,3)
+        #     ax.plot(x,np.log(probabilities))
+        #     # ax.set_ylim(r)
+
+        #     # Plot the correct data
+        #     ax2 = fig.add_subplot(2, 2, 2)
+        #     ax2.plot(x,TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES)
+        #     ax2 = fig.add_subplot(2, 2, 4)
+        #     ax2.plot(x,np.log(TEST_SENSOR_MODEL_OUTPUT_PROBABILITIES))
+        #     # ax2.set_ylim(r)
+
+        #     fig.tight_layout()
+        #     plt.show()
+
+        return probabilities
 
         ####################################
 
@@ -134,4 +252,10 @@ class SensorModel:
         # Make the map set
         self.map_set = True
 
+        # HEY I ADDED THIS, POSSIBLY ILLEGALLY
+        self.map_resolution = map_msg.info.resolution
+
         print("Map initialized")
+
+if __name__ == '__main__':
+    s = SensorModel()
