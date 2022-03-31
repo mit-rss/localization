@@ -1,0 +1,23 @@
+<launch>
+  <!-- Listen to messages from joysicks -->
+  <node pkg="joy" name="joy_node" type="joy_node"/>
+
+  <!-- Launch a map from the maps folder-->
+  <arg name="map" default="$(find localization)/maps/basement_fixed.map.yaml"/>
+  <node pkg="map_server" name="map_server" type="map_server" args="$(arg map)"/>
+
+  <!-- Launch the racecar model -->
+  <include file="$(find localization)/launch/racecar_model.launch"/>
+
+  <!-- Begin the simulator with the parameters from params.yaml -->
+
+  <node pkg="localization" type="particle_filter.py" name="particle_filter" output="screen">
+    <rosparam command="load" file="$(find localization)/params.yaml"/>
+    <param name="particle_filter_frame" value="/base_link"/>
+    <param name="map_topic" value="/map"/>
+    <param name="scan_topic" value="/scan"/>
+    <param name="odom_topic" value="/vesc/odom"/>
+    <param name="angle_step" value="11"/>
+    <param name="num_beams_per_particle" value="99" />
+  </node>
+</launch>
