@@ -1,5 +1,7 @@
 import numpy as np
-from scan_simulator_2d import PyScanSimulator2D
+from localization.scan_simulator_2d import PyScanSimulator2D
+# Try to change to just `from scan_simulator_2d import PyScanSimulator2D` 
+# if any error re: scan_simulator_2d occurs
 
 import rospy
 import tf
