@@ -6,7 +6,7 @@
 | Part B team submission (gradescope) | Friday, April 7th at 11:59PM EST |
 | Pushed code | Friday, April 7th at 11:59PM EST |
 | [Team Member Assessment](https://forms.gle/qwQtuj4cMP6Qiy518) | Friday, April 7th at 11:59PM EST |
-| OPTIONAL: Parts D and E | Friday, March 24th at 11:59PM EST |
+| OPTIONAL: Parts D and E | Friday, April 7th at 11:59PM EST |
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
 
