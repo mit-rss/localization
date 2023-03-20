@@ -5,7 +5,7 @@
 | Report (on team github pages website) | Friday, April 7th at 11:59PM EST |
 | Part B team submission (gradescope) | Friday, April 7th at 11:59PM EST |
 | Pushed code | Friday, April 7th at 11:59PM EST |
-| [Team Member Assessment](https://forms.gle/qwQtuj4cMP6Qiy518) | Friday, April 7th at 11:59PM EST |
+| [Team Member Assessment](https://forms.gle/Rcg1j11pwGrZT2up7) | Friday, April 7th at 11:59PM EST |
 | OPTIONAL: Parts D and E | Friday, April 7th at 11:59PM EST |
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
@@ -23,7 +23,7 @@ This lab consists of a number of modules, some required and some extra credit, s
 ## Submission and Grading
 
 This section describes the grading scheme for Lab 5, while the instructions to get started on the lab at available in the [instructions notebook](README.ipynb).
-The deliverables for this lab consist of five parts (two of which are optional) for a total of 10 points with 2 possible extra credit points. Parts A and E must be submitted individually, while the rest are teamwork. There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://docs.google.com/forms/d/e/1FAIpQLSeH7moDd1OhA5nKpBgstc7plhaBMFm3L1H99joylZSgegmQYw/viewform?usp=sf_link). *Note that part A is due sooner than the others, to encourage getting an early start - see the deliverables table at the top of this handout for all deadlines.*
+The deliverables for this lab consist of five parts (two of which are optional) for a total of 10 points with 2 possible extra credit points. Parts A and E must be submitted individually, while the rest are teamwork. There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://forms.gle/Rcg1j11pwGrZT2up7). *Note that part A is due sooner than the others, to encourage getting an early start - see the deliverables table at the top of this handout for all deadlines.*
 
 Parts A, B, and C are required and will be graded out of 10 points. Parts D and E are optional and 2 extra credit points are possible for a maximum grade of 12/10 points with extra credit. This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://docs.google.com/document/d/1B6l7vKJFN3CPPcMn8cKKArHUU_Bq_YUZ5KxKoP6qMk0/edit?usp=sharing) and [briefings](https://docs.google.com/document/d/1NmqQP7n1omI9bIshF1Y-MP70gfDkgEeoMjpWv8hjfsY/edit?usp=sharing)). The grades will be weighted according to the table below for an overall lab grade out of 10 points. *Note that due to the individual nature of parts A and E, overall lab grades may differ across teammates.*
 
