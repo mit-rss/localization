@@ -16,13 +16,32 @@ class ParticleFilter:
         covariance = np.array(data.covariance).reshape((6,6))
 
         roll, pitch, yaw = euler_from_quaternion(pose.orientation)
-        mean = [pose.position.x, pose.position.y, yaw)
+        mean = [pose.position.x, pose.position.y, yaw]
         relevant_covariance_idx = [0, 1, 5] #[x], [y], z, roll, pitch, [yaw=theta]
         relevant_covariance = covariance[np.ix_(relevant_covariance_idx, relevant_covariance_idx)] #sub covariance matrix with only x, y, theta
         sample_particles = np.random.multivariate_normal(mean, relevant_covariance, self.num_particles)
         return sample_particles
+    
+    def take_average(data):
+        """ 
+        takes numpy array of shape 3 x N in form [x, y, theta] from odometry, and returns a 3 x 1 array of form
+        [x_average, y_average, theta_average]
+        
+        """
+        x_odom = data[0, :]  # x values
+        y_odom = data[1, :]  # y values
+        angle_odom = data[2, :]  # angle values
+
+        x_average = np.average(x_odom)
+        y_average = np.average(y_odom)
+        angle_average = np.arctan2(np.sum(np.sin(angle_odom)), np.sum(np.cos(angle_odom)))
+
+        average = np.array([[x_average, y_average, angle_average]])
+
+        return average
+
    
-   def __init__(self):
+    def __init__(self):
         # Get parameters
         self.particle_filter_frame = \
                 rospy.get_param("~particle_filter_frame")
