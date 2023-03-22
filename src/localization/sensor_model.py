@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 from localization.scan_simulator_2d import PyScanSimulator2D
 # Try to change to just `from scan_simulator_2d import PyScanSimulator2D` 
