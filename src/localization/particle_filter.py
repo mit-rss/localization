@@ -9,6 +9,9 @@ from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from tf.transformations import euler_from_quaternion
+import threading
+
+lock = threading.Lock()
 
 class ParticleFilter:   
     def __init__(self):
@@ -87,13 +90,16 @@ class ParticleFilter:
         twist_dtheta = twist.angular.z
         dX = np.array([twist_dx, twist_dy, twist_dtheta])
 
+        lock.acquire()
         # Update Motion Model
         self.particles = self.motion_model.evaluate(self.particles, dX)
 
         # Update Pose Estimate
         self.update_pose()
+        lock.release()
 
     def on_get_lidar(self, lidar_data):
+        lock.acquire()
         # Update Sensor Model
         particle_weights = self.sensor_model.evaluate(self.particles, lidar_data)
 
@@ -103,6 +109,7 @@ class ParticleFilter:
 
         # Update Pose Estimate
         self.update_pose()
+        lock.release()
 
     def update_pose(self):
         particle_x = self.particles[:, 0]  # x values
