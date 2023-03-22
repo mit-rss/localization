@@ -19,18 +19,16 @@ class SensorModel:
         self.scan_theta_discretization = rospy.get_param("~scan_theta_discretization")
         self.scan_field_of_view = rospy.get_param("~scan_field_of_view")
 
-        ####################################
-        # TODO
-        # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 0
-        self.alpha_rand = 0
-        self.sigma_hit = 0
-
-        # Your sensor table will be a `table_width` x `table_width` np array:
+        # Tunable Parameters
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
+        self.sigma_hit = 8.0
         self.table_width = 201
-        ####################################
+        self.z_max = self.table_width - 1
+        self.eta = 1
+
 
         # Precompute the sensor model table
         self.sensor_model_table = None
@@ -72,58 +70,49 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
+        # Initialize Lookup Table
         self.sensor_model_table = np.zeros((self.table_width, self.table_width))
-        pmax_array = np.zeros((self.table_width, self.table_width))
-        phit_array = np.zeros((self.table_width, self.table_width))
-        pshort_array = np.zeros((self.table_width, self.table_width))
-        prand_array = np.zeros((self.table_width, self.table_width))
+        p_max_array = np.zeros((self.table_width, self.table_width))
+        p_hit_array = np.zeros((self.table_width, self.table_width))
+        p_short_array = np.zeros((self.table_width, self.table_width))
+        p_rand_array = np.zeros((self.table_width, self.table_width))
         
-
-        for row in range(self.table_width):
-            for col in range(self.table_width):
-                zk = row
-                d = col
-                zmax = self.table_width-1
-
-                # get pmax
-                if (zk == zmax):
-                    pmax =  1
-                else:
-                    pmax = 0
+        # Construct Lookup Table
+        for z_k in range(self.table_width):
+            for d in range(self.table_width):
+                # Calculate p_max
+                p_max = 0
+                if (z_k == self.z_max):
+                    p_max =  1
                 
-                # get phit
-                eta = 1 # for now
-                if ((0 <= zk) & (zk <= zmax)):
-                    compute = eta/math.sqrt(2 * math.pi * self.sigma_hit) * math.exp((-(zk-d)**2 )/ (2*self.sigma_hit**2))
-                    phit =  compute
-                else:
-                    phit =  0
+                # Calculate p_hit
+                p_hit = 0
+                if ((0 <= z_k) and (z_k <= self.z_max)):
+                    p_hit = self.eta/np.sqrt(2.0 * math.pi * self.sigma_hit**2) * np.exp((-(z_k-d)**2 )/ (2.0*self.sigma_hit**2))
                 
-                # get pshort
-                if ((0 <= zk) & (zk <= d) & (d != 0)):
-                    pshort =  (2/d) * (1-zk/d)
-                else:
-                    pshort = 0
+                # Calculate p_short
+                p_short = 0
+                if ((0 <= z_k) and (z_k <= d) and (d != 0)):
+                    p_short =  (2.0/d) * (1.0-z_k/d)
                 
-                # get prand
-                if ((0 <= zk) & (zk <= zmax)):
-                    prand =  1/zmax
-                else:
-                    prand = 0
+                # Calculate p_rand
+                p_rand = 0
+                if ((0 <= z_k) and (z_k <= self.z_max)):
+                    p_rand =  1.0/self.z_max
 
-                pmax_array[row, col] = pmax
-                phit_array[row, col] = phit
-                pshort_array[row, col] = pshort
-                prand_array[row, col] = prand
+                p_max_array[z_k, d] = p_max
+                p_hit_array[z_k, d] = p_hit
+                p_short_array[z_k, d] = p_short
+                p_rand_array[z_k, d] = p_rand
             
-        # normalize phit values
-        phit_array = phit_array/phit_array.sum(axis=0,keepdims=1)
+        # Normalize p_hit values
+        p_hit_array /= p_hit_array.sum(axis=0)
 
-        # sum the multiplication of prob arrays by alpha factor
-        self.sensor_model_table = sum([pmax_array*self.alpha_max,phit_array*self.alpha_hit, pshort_array*self.alpha_short, prand_array*self.alpha_rand])
+        # Compute probability table
+        self.sensor_model_table = sum([p_max_array*self.alpha_max,p_hit_array*self.alpha_hit, p_short_array*self.alpha_short, p_rand_array*self.alpha_rand])
 
-        # normalize entire table by columns (d values)
-        self.sensor_model_table = self.sensor_model_table/self.sensor_model_table.sum(axis=0,keepdims=1)
+        # Normalize probability table
+        self.sensor_model_table /= self.sensor_model_table.sum(axis=0)
 
 
     def evaluate(self, particles, observation):
