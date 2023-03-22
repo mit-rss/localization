@@ -114,6 +114,13 @@ class ParticleFilter:
         average_theta = np.arctan2(np.sum(np.sin(particle_theta)), np.sum(np.cos(particle_theta)))
 
         estimated_position = np.array([[average_x, average_y, average_theta]])
+        estimated_odom = Odometry()
+        estimated_odom.pose.pose.position.x = estimated_position[:,0]
+        estimated_odom.pose.pose.position.y = estimated_position[:,1]
+        estimated_odom.pose.pose.orientation.z = np.sin(estimated_position[:,2])
+        estimated_odom.pose.pose.orientation.w = np.cos(estimated_position[:,2])
+
+        self.odom_pub.publish(estimated_odom)
 
 
 if __name__ == "__main__":
