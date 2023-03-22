@@ -24,13 +24,13 @@ class ParticleFilter:
     
     def take_average(data):
         """ 
-        takes numpy array of shape 3 x N in form [x, y, theta] from odometry, and returns a 3 x 1 array of form
+        takes numpy array of shape N x 3 in form [x, y, theta] from odometry, and returns a 1 x 3 array of form
         [x_average, y_average, theta_average]
         
         """
-        x_odom = data[0, :]  # x values
-        y_odom = data[1, :]  # y values
-        angle_odom = data[2, :]  # angle values
+        x_odom = data[:, 0]  # x values
+        y_odom = data[:, 1]  # y values
+        angle_odom = data[:, 2]  # angle values
 
         x_average = np.average(x_odom)
         y_average = np.average(y_odom)
