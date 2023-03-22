@@ -1,21 +1,32 @@
 #!/usr/bin/env python2
 
 import rospy
+import numpy as np
 from sensor_model import SensorModel
 from motion_model import MotionModel
 
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovarianceStamped
-
+from tf.transformations import euler_from_quaternion
 
 class ParticleFilter:
+    def initialize_particles(data):
+        pose = data.pose
+        covariance = np.array(data.covariance).reshape((6,6))
 
-    def __init__(self):
+        roll, pitch, yaw = euler_from_quaternion(pose.orientation)
+        mean = [pose.position.x, pose.position.y, yaw)
+        relevant_covariance_idx = [0, 1, 5] #[x], [y], z, roll, pitch, [yaw=theta]
+        relevant_covariance = covariance[np.ix_(relevant_covariance_idx, relevant_covariance_idx)] #sub covariance matrix with only x, y, theta
+        sample_particles = np.random.multivariate_normal(mean, relevant_covariance, self.num_particles)
+        return sample_particles
+   
+   def __init__(self):
         # Get parameters
         self.particle_filter_frame = \
                 rospy.get_param("~particle_filter_frame")
-
+        self.num_particles = rospy.get_param("~num_particles")
         # Initialize publishers/subscribers
         #
         #  *Important Note #1:* It is critical for your particle
@@ -40,8 +51,8 @@ class ParticleFilter:
         #     "Pose Estimate" feature in RViz, which publishes to
         #     /initialpose.
         self.pose_sub  = rospy.Subscriber("/initialpose", PoseWithCovarianceStamped,
-                                          YOUR_POSE_INITIALIZATION_CALLBACK, # TODO: Fill this in
-                                          queue_size=1)
+                initialize_particles,                        
+                queue_size=1)
 
         #  *Important Note #3:* You must publish your pose estimate to
         #     the following topic. In particular, you must use the
