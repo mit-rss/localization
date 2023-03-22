@@ -52,6 +52,9 @@ class SensorModel:
                 self.map_callback,
                 queue_size=1)
 
+        # Initialize Particles
+        
+
     def precompute_sensor_model(self):
         """
         Generate and store a table which represents the sensor model.
@@ -143,8 +146,8 @@ class SensorModel:
         # Get ray tracing
         scans = self.scan_sim.scan(particles)
 
-        # Downsample LIDAR data
-        observation = observation[np.linspace(0, len(observation) - 1, self.num_beams_per_particle, endpoint=True, dtype="int")]
+        # Downsample LIDAR data (has to be done in particle_filter.py)
+        #observation = observation[np.linspace(0, len(observation) - 1, self.num_beams_per_particle, endpoint=True, dtype="int")]
 
         # Convert meters to pixels
         observation /= (self.map_resolution*self.lidar_scale_to_map_scale)
