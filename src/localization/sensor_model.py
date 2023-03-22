@@ -7,7 +7,6 @@ import rospy
 import tf
 from nav_msgs.msg import OccupancyGrid
 from tf.transformations import quaternion_from_euler
-import math
 
 class SensorModel:
 
@@ -18,6 +17,7 @@ class SensorModel:
         self.num_beams_per_particle = rospy.get_param("~num_beams_per_particle")
         self.scan_theta_discretization = rospy.get_param("~scan_theta_discretization")
         self.scan_field_of_view = rospy.get_param("~scan_field_of_view")
+        self.lidar_scale_to_map_scale = rospy.get_param("~lidar_scale_to_map_scale", 1)
 
         # Tunable Parameters
         self.alpha_hit = 0.74
@@ -26,8 +26,9 @@ class SensorModel:
         self.alpha_rand = 0.12
         self.sigma_hit = 8.0
         self.table_width = 201
-        self.z_max = self.table_width - 1
-        self.eta = 1
+        self.z_max = self.table_width - 1.0
+        self.eta = 1.0
+        self.squashing_parameter = 1.0/2.2
 
 
         # Precompute the sensor model table
@@ -88,7 +89,7 @@ class SensorModel:
                 # Calculate p_hit
                 p_hit = 0
                 if ((0 <= z_k) and (z_k <= self.z_max)):
-                    p_hit = self.eta/np.sqrt(2.0 * math.pi * self.sigma_hit**2) * np.exp((-(z_k-d)**2 )/ (2.0*self.sigma_hit**2))
+                    p_hit = self.eta/np.sqrt(2.0 * np.pi * np.power(self.sigma_hit,2)) * np.exp((-np.power((z_k-d),2) )/ (2.0*np.power(self.sigma_hit,2)))
                 
                 # Calculate p_short
                 p_short = 0
@@ -139,22 +140,35 @@ class SensorModel:
         if not self.map_set:
             return
 
-        ####################################
-        # TODO
-        # Evaluate the sensor model here!
-        #
-        # You will probably want to use this function
-        # to perform ray tracing from all the particles.
-        # This produces a matrix of size N x num_beams_per_particle 
-
+        # Get ray tracing
         scans = self.scan_sim.scan(particles)
 
-        ####################################
+        # Downsample LIDAR data
+        observation = observation[np.linspace(0, len(observation) - 1, self.num_beams_per_particle, endpoint=True, dtype="int")]
+
+        # Convert meters to pixels
+        observation /= (self.map_resolution*self.lidar_scale_to_map_scale)
+        observation = np.round(observation).astype("int")
+        np.clip(observation, 0, self.z_max)
+
+        scans /= (self.map_resolution*self.lidar_scale_to_map_scale)
+        scans = np.round(scans).astype("int")
+        np.clip(scans, 0, self.z_max)
+       
+        # Gather particle beam probabilities
+        beam_data = self.sensor_model_table[scans, observation]
+
+        # Compute particle probabilities
+        return np.power(np.prod(beam_data, axis=1), self.squashing_parameter)
+
+
+        
 
     def map_callback(self, map_msg):
         # Convert the map to a numpy array
         self.map = np.array(map_msg.data, np.double)/100.
         self.map = np.clip(self.map, 0, 1)
+        self.map_resolution = map_msg.info.resolution
 
         # Convert the origin to a tuple
         origin_p = map_msg.info.origin.position
