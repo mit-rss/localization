@@ -92,7 +92,7 @@ class SensorModel:
                 # Calculate p_hit
                 p_hit = 0
                 if ((0 <= z_k) and (z_k <= self.z_max)):
-                    p_hit = self.eta/np.sqrt(2.0 * np.pi * np.power(self.sigma_hit,2)) * np.exp((-np.power((z_k-d),2) )/ (2.0*np.power(self.sigma_hit,2)))
+                    p_hit = 1/np.sqrt(2.0 * np.pi * np.power(self.sigma_hit,2)) * np.exp((-np.power((z_k-d),2) )/ (2.0*np.power(self.sigma_hit,2)))
                 
                 # Calculate p_short
                 p_short = 0
@@ -151,12 +151,12 @@ class SensorModel:
 
         # Convert meters to pixels
         observation /= (self.map_resolution*self.lidar_scale_to_map_scale)
-        observation = np.round(observation).astype("int")
         np.clip(observation, 0, self.z_max)
+        observation = np.round(observation).astype("int")
 
         scans /= (self.map_resolution*self.lidar_scale_to_map_scale)
-        scans = np.round(scans).astype("int")
         np.clip(scans, 0, self.z_max)
+        scans = np.round(scans).astype("int")
        
         # Gather particle beam probabilities
         beam_data = self.sensor_model_table[scans, observation]
@@ -169,7 +169,7 @@ class SensorModel:
 
     def map_callback(self, map_msg):
         # Convert the map to a numpy array
-        self.map = np.array(map_msg.data, np.double)/100.
+        self.map = np.array(map_msg.data, np.double)/100.0
         self.map = np.clip(self.map, 0, 1)
         self.map_resolution = map_msg.info.resolution
 

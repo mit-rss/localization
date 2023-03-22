@@ -7,8 +7,8 @@ from motion_model import MotionModel
 
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseWithCovarianceStamped
-from tf.transformations import euler_from_quaternion
+from geometry_msgs.msg import PoseWithCovarianceStamped, PoseArray, Pose, Point, Quaternion
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import threading
 
 lock = threading.Lock()
@@ -120,7 +120,20 @@ class ParticleFilter:
         average_y = np.average(particle_y)
         average_theta = np.arctan2(np.sum(np.sin(particle_theta)), np.sum(np.cos(particle_theta)))
 
-        estimated_position = np.array([[average_x, average_y, average_theta]])
+        estimated_odom = Odometry()
+        estimated_odom.pose.pose.position = Point(average_x, average_y, 0)
+        estimated_odom.pose.pose.orientation = Quaternion(*quaternion_from_euler(0,0,average_theta))
+        self.odom_pub.publish(estimated_odom)
+
+    """
+    def visualize_particles(self):
+        pose_array = PoseArray()
+
+
+        for i in range(self.num_particles):
+            point = Point(self.particles[i, 0], self.particles[i, 1], 0)
+    """
+        
 
 
 if __name__ == "__main__":
