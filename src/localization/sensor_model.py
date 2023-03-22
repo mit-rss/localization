@@ -10,8 +10,6 @@ from nav_msgs.msg import OccupancyGrid
 from tf.transformations import quaternion_from_euler
 
 class SensorModel:
-
-
     def __init__(self):
         # Fetch parameters
         self.map_topic = rospy.get_param("~map_topic")
@@ -30,7 +28,6 @@ class SensorModel:
         self.z_max = self.table_width - 1.0
         self.eta = 1.0
         self.squashing_parameter = 1.0/2.2
-
 
         # Precompute the sensor model table
         self.sensor_model_table = None
@@ -52,9 +49,6 @@ class SensorModel:
                 OccupancyGrid,
                 self.map_callback,
                 queue_size=1)
-
-        # Initialize Particles
-        
 
     def precompute_sensor_model(self):
         """
@@ -140,15 +134,11 @@ class SensorModel:
                the probability of each particle existing
                given the observation and the map.
         """
-
         if not self.map_set:
             return
 
         # Get ray tracing
         scans = self.scan_sim.scan(particles)
-
-        # Downsample LIDAR data (has to be done in particle_filter.py)
-        #observation = observation[np.linspace(0, len(observation) - 1, self.num_beams_per_particle, endpoint=True, dtype="int")]
 
         # Convert meters to pixels
         observation /= (self.map_resolution*self.lidar_scale_to_map_scale)
@@ -160,7 +150,7 @@ class SensorModel:
         scans = np.round(scans).astype("int")
        
         # Gather particle beam probabilities
-        beam_data = self.sensor_model_table[scans, observation]
+        beam_data = self.sensor_model_table[observation, scans]
 
         # Compute particle probabilities
         return np.power(np.prod(beam_data, axis=1), self.squashing_parameter)
