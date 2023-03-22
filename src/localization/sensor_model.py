@@ -7,6 +7,7 @@ import rospy
 import tf
 from nav_msgs.msg import OccupancyGrid
 from tf.transformations import quaternion_from_euler
+import math
 
 class SensorModel:
 
@@ -18,15 +19,18 @@ class SensorModel:
         self.scan_theta_discretization = rospy.get_param("~scan_theta_discretization")
         self.scan_field_of_view = rospy.get_param("~scan_field_of_view")
 
-        # Tunable Parameters
-        self.alpha_hit = 0.74
-        self.alpha_short = 0.07
-        self.alpha_max = 0.07
-        self.alpha_rand = 0.12
-        self.sigma_hit = 8.0
+        ####################################
+        # TODO
+        # Adjust these parameters
+        self.alpha_hit = 0
+        self.alpha_short = 0
+        self.alpha_max = 0
+        self.alpha_rand = 0
+        self.sigma_hit = 0
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
+        ####################################
 
         # Precompute the sensor model table
         self.sensor_model_table = None
@@ -68,7 +72,59 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
-        raise NotImplementedError
+        self.sensor_model_table = np.zeros((self.table_width, self.table_width))
+        pmax_array = np.zeros((self.table_width, self.table_width))
+        phit_array = np.zeros((self.table_width, self.table_width))
+        pshort_array = np.zeros((self.table_width, self.table_width))
+        prand_array = np.zeros((self.table_width, self.table_width))
+        
+
+        for row in range(self.table_width):
+            for col in range(self.table_width):
+                zk = row
+                d = col
+                zmax = self.table_width-1
+
+                # get pmax
+                if (zk == zmax):
+                    pmax =  1
+                else:
+                    pmax = 0
+                
+                # get phit
+                eta = 1 # for now
+                if ((0 <= zk) & (zk <= zmax)):
+                    compute = eta/math.sqrt(2 * math.pi * self.sigma_hit) * math.exp((-(zk-d)**2 )/ (2*self.sigma_hit**2))
+                    phit =  compute
+                else:
+                    phit =  0
+                
+                # get pshort
+                if ((0 <= zk) & (zk <= d) & (d != 0)):
+                    pshort =  (2/d) * (1-zk/d)
+                else:
+                    pshort = 0
+                
+                # get prand
+                if ((0 <= zk) & (zk <= zmax)):
+                    prand =  1/zmax
+                else:
+                    prand = 0
+
+                pmax_array[row, col] = pmax
+                phit_array[row, col] = phit
+                pshort_array[row, col] = pshort
+                prand_array[row, col] = prand
+            
+        # normalize phit values
+        phit_array = phit_array/phit_array.sum(axis=0,keepdims=1)
+
+        # sum the multiplication of prob arrays by alpha factor
+        self.sensor_model_table = sum([pmax_array*self.alpha_max,phit_array*self.alpha_hit, pshort_array*self.alpha_short, prand_array*self.alpha_rand])
+
+        # normalize entire table by columns (d values)
+        self.sensor_model_table = self.sensor_model_table/self.sensor_model_table.sum(axis=0,keepdims=1)
+
 
     def evaluate(self, particles, observation):
         """
