@@ -1,6 +1,6 @@
 from __future__ import division
 import numpy as np
-from localization.scan_simulator_2d import PyScanSimulator2D
+from scan_simulator_2d import PyScanSimulator2D
 # Try to change to just `from scan_simulator_2d import PyScanSimulator2D` 
 # if any error re: scan_simulator_2d occurs
 
@@ -138,22 +138,36 @@ class SensorModel:
             return
 
         # Get ray tracing
+        #rospy.loginfo(particles)
         scans = self.scan_sim.scan(particles)
-
+        #rospy.loginfo(scans)
+        
         # Convert meters to pixels
         observation /= (self.map_resolution*self.lidar_scale_to_map_scale)
-        np.clip(observation, 0, self.z_max)
+        observation = np.clip(observation, 0, self.z_max)
         observation = np.round(observation).astype("int")
 
         scans /= (self.map_resolution*self.lidar_scale_to_map_scale)
-        np.clip(scans, 0, self.z_max)
+        scans = np.clip(scans, 0, self.z_max)
         scans = np.round(scans).astype("int")
        
         # Gather particle beam probabilities
+        #rospy.loginfo(observation)
+        #rospy.loginfo(scans)    
         beam_data = self.sensor_model_table[observation, scans]
+        # rospy.loginfo(beam_data)
+        # rospy.loginfo(beam_data.sum(axis=0))
+        # rospy.loginfo(beam_data.sum(axis=1))
+        # rospy.loginfo(beam_data.sum())
+
+        # x = np.prod(beam_data, axis=1)
+        #rospy.loginfo(x)
+        #rospy.loginfo(x.sum())
 
         # Compute particle probabilities
-        return np.power(np.prod(beam_data, axis=1), self.squashing_parameter)
+        prob_particles = np.power(np.prod(beam_data, axis=1), self.squashing_parameter)
+        prob_particles /= prob_particles.sum() # normalized to sum to 1
+        return prob_particles
 
 
         
