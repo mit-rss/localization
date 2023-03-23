@@ -11,14 +11,13 @@ from geometry_msgs.msg import PoseWithCovarianceStamped, PoseArray, Pose, Point,
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import threading
 
-lock = threading.Lock()
-
 class ParticleFilter:   
     def __init__(self):
         # Get parameters
         self.particle_filter_frame = \
                 rospy.get_param("~particle_filter_frame")
         self.num_particles = rospy.get_param("~num_particles")
+        self.num_beams_per_particle = rospy.get_param("~num_beams_per_particle")
 
         # Initialize publishers/subscribers
         #
@@ -54,12 +53,16 @@ class ParticleFilter:
         #     odometry you publish here should be with respect to the
         #     "/map" frame.
         self.odom_pub  = rospy.Publisher("/pf/pose/odom", Odometry, queue_size = 1)
-        
+
+        # Particle Visualization
+        self.particle_visualizer = rospy.Publisher("/particles", PoseArray, queue_size = 10)
+
         # Initialize the models
         self.motion_model = MotionModel()
         self.sensor_model = SensorModel()
         self.particles = np.zeros((self.num_particles, 3))
         self.particle_indices = np.arange(0, self.num_particles)
+        self.lock = threading.Lock()
 
         # Implement the MCL algorithm
         # using the sensor model and the motion model
@@ -90,16 +93,22 @@ class ParticleFilter:
         twist_dtheta = twist.angular.z
         dX = np.array([twist_dx, twist_dy, twist_dtheta])
 
-        lock.acquire()
+        self.lock.acquire()
         # Update Motion Model
         self.particles = self.motion_model.evaluate(self.particles, dX)
 
         # Update Pose Estimate
         self.update_pose()
-        lock.release()
+        self.lock.release()
 
     def on_get_lidar(self, lidar_data):
-        lock.acquire()
+        lidar_data = lidar_data.ranges
+
+        # Downsample LIDAR data
+        if len(lidar_data) > self.num_beams_per_particle:
+            lidar_data = lidar_data[np.linspace(0, len(lidar_data) - 1, self.num_beams_per_particle, endpoint=True, dtype="int")]
+
+        self.lock.acquire()
         # Update Sensor Model
         particle_weights = self.sensor_model.evaluate(self.particles, lidar_data)
 
@@ -109,7 +118,7 @@ class ParticleFilter:
 
         # Update Pose Estimate
         self.update_pose()
-        lock.release()
+        self.lock.release()
 
     def update_pose(self):
         particle_x = self.particles[:, 0]  # x values
@@ -125,15 +134,20 @@ class ParticleFilter:
         estimated_odom.pose.pose.orientation = Quaternion(*quaternion_from_euler(0,0,average_theta))
         self.odom_pub.publish(estimated_odom)
 
-    """
-    def visualize_particles(self):
-        pose_array = PoseArray()
+        # Visualize New Particle Cloud if Listening
+        if self.particle_visualizer.get_num_connections() > 0:
+            pose_array = PoseArray()
+            poses = []
 
+            for i in range(self.num_particles):
+                pose = Pose()
+                pose.position = Point(self.particles[i, 0], self.particles[i, 1], 0)
+                pose.orientation = Quaternion(*quaternion_from_euler(0,0,self.particles[i, 2]))
+                poses.append(pose)
+            
+            pose_array.poses = poses
+            self.particle_visualizer.publish(pose_array)
 
-        for i in range(self.num_particles):
-            point = Point(self.particles[i, 0], self.particles[i, 1], 0)
-    """
-        
 
 
 if __name__ == "__main__":
