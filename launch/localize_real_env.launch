@@ -7,7 +7,7 @@
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map)"/>
 
   <!-- Launch the racecar model -->
-  <include file="$(find localization)/launch/racecar_model.launch"/>
+  <include file="$(find racecar_simulator)/launch/racecar_model.launch"/>
 
   <!-- Begin the simulator with the parameters from params.yaml -->
 
