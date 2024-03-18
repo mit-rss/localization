@@ -36,8 +36,28 @@ Parts A, B, and C are required and will be graded out of 10 points. Parts D and 
 -   **Part A - (Writing Assignment)** Understand the motion and sensor model.
 -   **Part B - (Programming Assignment)** Develop and test the particle filter algorithm in 2D racecar simulation environment, upload solution to gradescope for autograder evaluation.
 -   **Part C - (Localization)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
--   *Part D - (OPTIONAL: Extra Credit) From localization to SLAM: Coming Very Soon! * 
+-   *Part D - (OPTIONAL: Extra Credit) From localization to SLAM: configure and run Google Cartographer in the simulator.*
 -   *Part E - (OPTIONAL: Extra Credit) Derive the Bayes' Filter presented in Lecture 10.*
+
+### Before You Begin: Initial Setup
+
+In order to build this package, we need to include a few dependencies that are not already included on the car. Note that this does **not** affect your work in the simulator.
+
+Please come find an instructor to do this for you, as this step requires an internet connection.
+
+
+============================= **Note for TAs** ============================= 
+
+Pull the updated docker image (`sebagarc/hardwareros2-production`), which contains:
+
+- the re-routed `racecar_simulator`
+- `SIM_WS` environment variable
+- two additional apt packages.
+
+Verify that the localization package can be built.
+
+=====================================================================
+
 
 ### Part A: Grading for writing assignment (3 points) - **INDIVIDUAL EFFORT**, *REQUIRED*
 
@@ -71,7 +91,13 @@ In your report and briefing, make sure to provide:
     - Laser scan data in the coordinate frame of your inferred position (it should align fairly well with the walls in the known map)
     - Any other byproducts of your algorithm which you find worthy of visualization
 
-### Part D: Grading for SLAM Bonus Portion(1 bonus point) - **TEAM**, *COMING SOON*
+### Part D: Grading for SLAM with Google Cartographer (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT*
+
+Experiment with SLAM by configuring and running Google Cartographer in the simulation environment. Include your results in your lab report and presentation.
+
+- Build a map of the Bldg 31 OR STATA basement using Cartographer (these are the usual provided maps)
+- Localize using Cartographer
+- Show visualization evidence that Cartographer is working in the simulator
 
 ### Part E: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
 

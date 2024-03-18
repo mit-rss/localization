@@ -1,12 +1,43 @@
-## ! DO NOT MANUALLY INVOKE THIS setup.py, USE CATKIN INSTEAD
+from setuptools import setup, find_packages, Extension
+from Cython.Build import cythonize
+import glob
+import os
 
-from distutils.core import setup
-from catkin_pkg.python_setup import generate_distutils_setup
+package_name = 'localization'
 
-# fetch values from package.xml
-setup_args = generate_distutils_setup(
-    packages=['localization'],
-    package_dir={'': 'src'},
+RACECAR_SIMULATOR_PREFIX = os.path.join(os.environ["SIM_WS"], "install", "racecar_simulator")
+
+extensions = Extension(
+    "scan_simulator_2d",
+    [package_name + "/scan_simulator_2d.pyx"],
+    language="c++",
+    libraries=["racecar_simulator"],
+    include_dirs=[os.path.join(RACECAR_SIMULATOR_PREFIX, "include")],
+    library_dirs=[os.path.join(RACECAR_SIMULATOR_PREFIX, "lib")],
+    extra_compile_args=['-Wno-cpp', '-g'],
 )
+setup(
+    ext_modules=cythonize(extensions, force=True, quiet=True),
+    name=package_name,
+    version='0.0.0',
+    packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+         ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml', 'localization/params.yaml']),
+        ('share/localization/launch', glob.glob(os.path.join('launch', '*launch.xml')))
+    ],
+    install_requires=['setuptools', "Cython"],
+    zip_safe=True,
+    maintainer='alanyu',
+    maintainer_email='alanyu@csail.mit.edu',
+    description='TODO: Package description',
+    license='TODO: License declaration',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'particle_filter = localization.particle_filter:main'
+        ],
+    },
 
-setup(**setup_args)
+)
