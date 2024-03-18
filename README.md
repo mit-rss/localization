@@ -1,12 +1,12 @@
 | Deliverable | Due Date              |
 |---------------|----------------------------------------------------------------------------|
-| Part A individual submission (gradescope) | Monday, March 20th at 11:59PM EST |
-| Briefing (8 min presentation + 3 min Q&A) (slides on github pages)  | Monday, April 10th at 1:00PM EST |
-| Report (on team github pages website) | Friday, April 14th at 11:59PM EST |
-| Part B team submission (gradescope) | Friday, April 14th at 11:59PM EST |
-| Pushed code | Friday, April 14thth at 11:59PM EST |
-| [Team Member Assessment](https://forms.gle/Rcg1j11pwGrZT2up7) | Friday, April 14th at 11:59PM EST |
-| OPTIONAL: Parts D and E | Friday, April 14th at 11:59PM EST |
+| Part A individual submission (gradescope) | Friday, March 22nd at 11:59PM EST |
+| Briefing (8 min presentation + 3 min Q&A) (slides on github pages)  | Monday, April 8th at 1:00PM EST |
+| Report (on team github pages website) | Monday, April 8th at 11:59PM EST |
+| Part B team submission (gradescope) | Monday, April 8th at 11:59PM EST |
+| Pushed code | Monday, April 8th at 11:59PM EST |
+| [Team Member Assessment](https://forms.gle/Rcg1j11pwGrZT2up7) | Monday, April 8th at 11:59PM EST |
+| OPTIONAL: Parts D and E | Monday, April 8th at 11:59PM EST |
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
 
@@ -36,7 +36,7 @@ Parts A, B, and C are required and will be graded out of 10 points. Parts D and 
 -   **Part A - (Writing Assignment)** Understand the motion and sensor model.
 -   **Part B - (Programming Assignment)** Develop and test the particle filter algorithm in 2D racecar simulation environment, upload solution to gradescope for autograder evaluation.
 -   **Part C - (Localization)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
--   *Part D - (OPTIONAL: Extra Credit) From localization to SLAM: configure and run Google Cartographer in the simulator.*
+-   *Part D - (OPTIONAL: Extra Credit) From localization to SLAM: Coming Soon!*
 -   *Part E - (OPTIONAL: Extra Credit) Derive the Bayes' Filter presented in Lecture 10.*
 
 ### Before You Begin: Initial Setup
@@ -91,13 +91,9 @@ In your report and briefing, make sure to provide:
     - Laser scan data in the coordinate frame of your inferred position (it should align fairly well with the walls in the known map)
     - Any other byproducts of your algorithm which you find worthy of visualization
 
-### Part D: Grading for SLAM with Google Cartographer (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT*
+### Part D: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT*
 
-Experiment with SLAM by configuring and running Google Cartographer in the simulation environment. Include your results in your lab report and presentation.
-
-- Build a map of the Bldg 31 OR STATA basement using Cartographer (these are the usual provided maps)
-- Localize using Cartographer
-- Show visualization evidence that Cartographer is working in the simulator
+Experiment with SLAM 
 
 ### Part E: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
 
