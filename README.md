@@ -73,7 +73,7 @@ Submit your numeric answers along with your justifications to the gradescope ass
 
 Implement MCL in the simulator. Augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Ask a TA for a checkoff. Points will be assigned based on completion and the convergement of your solution in the 2D racecar simulation environment.
 
-Before your briefing, you should seek out a TA to check off your solution during lab hours *before the day of briefings*. In the case that you do not finish this part during lab hours, please contact your point TA about scheduling another time for checkoff *with timely notice* or see if any TAs are free during offices hours. Still, the priority during office hours is to help students with their questions not do lab check offs. Only one member of your team needs to be present for the checkoff. Be ready to answer questions about your implementation.
+Before your briefing, you should seek out a TA to check off your solution during lab hours *before the day of briefings*. In the case that you do not finish this part during lab hours, please contact your point TA about scheduling another time for checkoff *with timely notice* or see if any TAs are free during offices hours. Still, the priority during office hours is to help students with their questions not do lab check offs. At least one member of your team needs to be present for the checkoff and be ready to answer questions about your implementation.
 
 You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package.
 
