@@ -1,13 +1,14 @@
 | Deliverable | Due Date              |
 |---------------|----------------------------------------------------------------------------|
 | Part A individual submission (gradescope) | Friday, March 22nd at 11:59PM EST |
+| Part B team submission (gradescope) | Monday, April 8th at 11:59PM EST |
+| Pushed code | Monday, April 8th at 11:59PM EST |
+| OPTIONAL: Parts D and E | Monday, April 8th at 11:59PM EST |
 | **Briefing slides (slides on github pages)**  | Monday, April 8th at 1:00PM EST |
 | Briefing (8 min presentation + 3 min Q&A) | Wednesday, April 10th at 1:00PM EST |
 | Report (on team github pages website) | Wednesday, April 10th at 11:59PM EST |
-| Part B team submission (gradescope) | Monday, April 8th at 11:59PM EST |
-| Pushed code | Monday, April 8th at 11:59PM EST |
 | [Team Member Assessment](https://forms.gle/Rcg1j11pwGrZT2up7) | Wednesday, April 10th at 11:59PM EST |
-| OPTIONAL: Parts D and E | Monday, April 8th at 11:59PM EST |
+
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
 
