@@ -1,11 +1,12 @@
 | Deliverable | Due Date              |
 |---------------|----------------------------------------------------------------------------|
 | Part A individual submission (gradescope) | Friday, March 22nd at 11:59PM EST |
-| Briefing (8 min presentation + 3 min Q&A) (slides on github pages)  | Monday, April 8th at 1:00PM EST |
-| Report (on team github pages website) | Monday, April 8th at 11:59PM EST |
+| **Briefing slides (slides on github pages)**  | Monday, April 8th at 1:00PM EST |
+| Briefing (8 min presentation + 3 min Q&A) | Wednesday, April 10th at 1:00PM EST |
+| Report (on team github pages website) | Wednesday, April 10th at 11:59PM EST |
 | Part B team submission (gradescope) | Monday, April 8th at 11:59PM EST |
 | Pushed code | Monday, April 8th at 11:59PM EST |
-| [Team Member Assessment](https://forms.gle/Rcg1j11pwGrZT2up7) | Monday, April 8th at 11:59PM EST |
+| [Team Member Assessment](https://forms.gle/Rcg1j11pwGrZT2up7) | Wednesday, April 10th at 11:59PM EST |
 | OPTIONAL: Parts D and E | Monday, April 8th at 11:59PM EST |
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
@@ -68,11 +69,13 @@ Submit your answers **individually** to the writing assignment on gradescope, pr
 
 Submit your numeric answers along with your justifications to the gradescope assignment **Lab 5 Part A: Individual Submission**. You may check your numeric results by putting your answers in `/autograder/solutions_go_here.py` and uploading to the gradescope autograder **Lab 5 Part A: OPTIONAL**, but your grade will be based only on your explanations and answers submitted for the written portion. Just writing the final answer will not give total credit, even if correct. These questions will help you understand the algorithm before diving into coding.
 
-### Part B: Grading for implementation and autograder (4 points) - **TEAMWORK**, *REQUIRED*
+### Part B: Grading for simulation implementation (4 points) - **TEAMWORK**, *REQUIRED*
 
-Implement MCL in the simulator. Augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Run your implementation of MCL on the gradescope autograder. Points will be assigned based on performance as compared to the TA solution in the 2D racecar simulation environment.
+Implement MCL in the simulator. Augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Ask a TA for a checkoff. Points will be assigned based on completion and the convergement of your solution in the 2D racecar simulation environment.
 
-You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package. See section 5 of part B in the [instructions notebook](README.ipynb) for more details on submission format and how exactly the autograder will evaluate your implementation. *Only one member of your team needs to submit the code to the autograder.*
+Before your briefing, you should seek out a TA to check off your solution during lab hours *before the day of briefings*. In the case that you do not finish this part during lab hours, please contact your point TA about scheduling another time for checkoff *with timely notice* or see if any TAs are free during offices hours. Still, the priority during office hours is to help students with their questions not do lab check offs. Only one member of your team needs to be present for the checkoff. Be ready to answer questions about your implementation.
+
+You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package.
 
 **Note that while the autograder will add noise to the odometry when evaluating your solution, you must augment the odometry with your own noise when using the 2D simulation environment, both in order to increase your confidence in your solution and to evaluate your implementation in a realistic environment when providing analysis in your report and briefing.**
 
