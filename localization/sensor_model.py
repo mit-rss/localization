@@ -1,4 +1,6 @@
 import numpy as np
+import math
+import sys
 from scan_simulator_2d import PyScanSimulator2D
 # Try to change to just `from scan_simulator_2d import PyScanSimulator2D` 
 # if any error re: scan_simulator_2d occurs
@@ -10,6 +12,9 @@ from nav_msgs.msg import OccupancyGrid
 import sys
 
 np.set_printoptions(threshold=sys.maxsize)
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 class SensorModel:
@@ -31,11 +36,11 @@ class SensorModel:
 
         ####################################
         # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 0
-        self.alpha_rand = 0
-        self.sigma_hit = 0
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
+        self.sigma_hit = 8.0
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
@@ -86,9 +91,48 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
+        alpha_hit = self.alpha_hit
+        alpha_short = self.alpha_short
+        alpha_max = self.alpha_max
+        alpha_rand = self.alpha_rand
+        sigma_hit = self.sigma_hit
+        eta = 1
 
-        raise NotImplementedError
 
+        z_max = self.table_width-1 #assumes that the longest dist (in px) is the last entry in the table
+        d_array = np.linspace(0.000001,z_max,self.table_width)
+        z_array = np.linspace(0.000001,z_max,self.table_width)
+
+        # Compute raw p_hit
+        diff_squared = (z_array[:, np.newaxis] - d_array[np.newaxis, :]) ** 2
+        exponent = - diff_squared / (2 * sigma_hit**2)
+        constant = eta * 1 / (2 * math.pi * sigma_hit**2)**0.5
+        p_hit = constant * np.exp(exponent)
+        #normalize p_hit
+        column_sums = np.sum(p_hit, axis=0) 
+        p_hit_normalized = p_hit / column_sums[np.newaxis, :] 
+        p_hit = p_hit_normalized
+
+        #compute p_short
+        constant = 2/d_array[np.newaxis,:]
+        multiplier = np.where(d_array[np.newaxis,:]>z_array[:,np.newaxis],1-z_array[:,np.newaxis]/d_array[np.newaxis,:],0)
+        p_short = constant*multiplier
+
+        #compute p_max
+        p_max = np.where(z_array[:,np.newaxis]==z_max,1,0)
+
+        #compute p_rand
+        p_rand = np.full((self.table_width,self.table_width),1/z_max)
+
+        #compute total probability
+        p_table = alpha_hit*p_hit+alpha_max*p_max+alpha_rand*p_rand+alpha_short*p_short
+        #normalize the p_table by d value (columns i think)
+        total_column_sums = np.sum(p_table, axis=0)
+        p_table_normalized = p_table / total_column_sums[np.newaxis, :]
+        self.sensor_model_table = p_table_normalized
+
+    def fetch_prob(self,z,d):
+        return self.sensor_model_table[z,d]
     def evaluate(self, particles, observation):
         """
         Evaluate how likely each particle is given
@@ -121,7 +165,31 @@ class SensorModel:
         # to perform ray tracing from all the particles.
         # This produces a matrix of size N x num_beams_per_particle 
 
-        scans = self.scan_sim.scan(particles)
+        particle_scans = self.scan_sim.scan(particles)
+
+        #convert scans from meters to pixels and round to the nearest int
+        particle_scans_px = particle_scans/(self.resolution*self.lidar_scale_to_map_scale)
+        particle_scans_px = np.round(particle_scans_px)
+
+        #downsample the lidar
+        stride = max(1, observation.shape[0] // particle_scans_px.shape[1])
+    
+        # Slice the array to select every `stride`-th element
+        downsmpled_observation = observation[::stride]
+
+        #convert the downsampled observation to px and round
+        px_observtion = downsmpled_observation/(self.resolution*self.lidar_scale_to_map_scale)
+        px_observtion = np.round(px_observtion)
+
+
+        #calculate the probability of each vector
+        particle_probs = self.sensor_model_table[px_observtion,particle_scans_px]
+
+        #total each particles probability
+        total_particle_probs = sum(particle_probs, axis=1)
+
+        return total_particle_probs
+
 
         ####################################
 
@@ -155,3 +223,11 @@ class SensorModel:
         self.map_set = True
 
         print("Map initialized")
+
+
+
+
+
+
+
+
