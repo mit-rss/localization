@@ -93,7 +93,7 @@ ros2 launch localization test_map.launch.xml
 # ==========================
 ```
 
-If your code errors out or fails, the console will indicate that. Otherwise, you should see a few messages indicating that the tests have passed, and the script will exit. If you are curious about what might have gone wrong, please inspect the `launch/unit_tests/*.py` launch files. 
+If your code errors out or fails, the console will indicate that. Otherwise, you should see a few messages indicating that the tests have passed, and the script will exit. If you are curious about what might have gone wrong, please inspect the `localization/test/*.py` files. 
 
 ### Part C: Grading for localization in ROBOT (3 points) - **TEAMWORK**, *REQUIRED*
 
