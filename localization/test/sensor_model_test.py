@@ -29,7 +29,7 @@ class SensorModelTest(Node):
             self.sensor_model = SensorModel(self)
         except:
             self.get_logger().error("Failed to initialize SensorModel :(")
-            exit()
+            raise ValueError
 
         # overwrite alphas
         self.sensor_model.alpha_hit = Args.alpha_hit
