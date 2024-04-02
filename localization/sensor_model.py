@@ -131,8 +131,7 @@ class SensorModel:
         p_table_normalized = p_table / total_column_sums[np.newaxis, :]
         self.sensor_model_table = p_table_normalized
 
-    def fetch_prob(self,z,d):
-        return self.sensor_model_table[z,d]
+
     def evaluate(self, particles, observation):
         """
         Evaluate how likely each particle is given
