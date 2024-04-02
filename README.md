@@ -78,7 +78,7 @@ Before your briefing, you should seek out a TA to check off your solution during
 
 You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package.
 
-**Running Unit Tests (updated 1 April 2024)**
+### [Running Unit Tests (updated 1 April 2024)](#running-unit-tests)
 
 We have provided a few unit tests for you to test your sensor model and motion model. To run these tests, do:
 
