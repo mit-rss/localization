@@ -170,6 +170,7 @@ class SensorModel:
         #convert scans from meters to pixels and round to the nearest int
         particle_scans_px = particle_scans/(self.resolution*self.lidar_scale_to_map_scale)
         particle_scans_px = np.round(particle_scans_px)
+        particle_scans_px = particle_scans_px.astype(int)
 
         #downsample the lidar
         stride = max(1, observation.shape[0] // particle_scans_px.shape[1])
@@ -180,13 +181,14 @@ class SensorModel:
         #convert the downsampled observation to px and round
         px_observtion = downsmpled_observation/(self.resolution*self.lidar_scale_to_map_scale)
         px_observtion = np.round(px_observtion)
+        px_observtion = px_observtion.astype(int)
 
 
         #calculate the probability of each vector
         particle_probs = self.sensor_model_table[px_observtion,particle_scans_px]
 
         #total each particles probability
-        total_particle_probs = sum(particle_probs, axis=1)
+        total_particle_probs = np.prod(particle_probs, axis=1)
 
         return total_particle_probs
 
