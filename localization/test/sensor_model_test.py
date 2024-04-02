@@ -49,6 +49,8 @@ class SensorModelTest(Node):
             self.map_cb,
             1)
 
+        self.num_passed = 0
+
     def map_cb(self, msg):
 
         try:
@@ -63,11 +65,12 @@ class SensorModelTest(Node):
 
         self.test_all()
 
-        self.get_logger().info("All tests passed!")
+        self.get_logger().info("Tests complete. Exiting...")
 
     def test_all(self):
         try:
             self.test_map_callback()
+            self.num_passed += 1
         except AssertionError:
             self.get_logger().error("Map callback test failed :(")
         except:
@@ -75,6 +78,7 @@ class SensorModelTest(Node):
 
         try:
             self.test_precompute()
+            self.num_passed += 1
         except AssertionError:
             self.get_logger().error("Precompute test failed :(")
         except:
@@ -82,12 +86,14 @@ class SensorModelTest(Node):
 
         try:
             self.test_evaluate()
+            self.num_passed += 1
         except AssertionError:
             self.get_logger().error("Evaluate test failed :(")
         except:
             self.get_logger().error("Evaluate test errored out for some other reason :(")
-
-        self.get_logger().info("All tests passed :)")
+        
+        if self.num_passed == 3:
+            self.get_logger().info("All tests passed :)")
 
     def test_precompute(self):
         expected = np.array(TEST_PRECOMPUTED_TABLE)
