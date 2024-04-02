@@ -11,8 +11,8 @@ class MotionModelTest(Node):
         super().__init__('particle_filter')
         try:
             self.motion_model = MotionModel(self)
-        except:
-            self.get_logger().error("Failed to initialize MotionModel :(")
+        except Exception as e:
+            self.get_logger().error(f"Failed to initialize MotionModel :( {e}")
             exit()
 
         self.particles = np.array(TEST_PARTICLES)
@@ -24,8 +24,8 @@ class MotionModelTest(Node):
     def test_evaluate_motion_model(self):
         try:
             actual = self.motion_model.evaluate(self.particles, self.odom)
-        except:
-            self.get_logger().error("Motion model errored out :(")
+        except Exception as e:
+            self.get_logger().error(f"Motion model errored out :( {e}")
             exit()
         assert np.allclose(self.expected,
                            actual,

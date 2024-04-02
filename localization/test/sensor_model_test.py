@@ -55,13 +55,13 @@ class SensorModelTest(Node):
 
         try:
             self.sensor_model.map_callback(msg)
-        except:
-            self.get_logger().error("Map callback errored out :(")
+        except Exception as e:
+            self.get_logger().error(f"Map callback errored out :( {e}")
 
         try:
             self.sensor_model.precompute_sensor_model()
-        except:
-            self.get_logger().error("Precompute errored out :(")
+        except Exception as e:
+            self.get_logger().error(f"Precompute errored out :( {e}")
 
         self.test_all()
 
@@ -71,27 +71,27 @@ class SensorModelTest(Node):
         try:
             self.test_map_callback()
             self.num_passed += 1
-        except AssertionError:
-            self.get_logger().error("Map callback test failed :(")
-        except:
-            self.get_logger().error("Map callback test errored out for some other reason :(")
+        except AssertionError as e:
+            self.get_logger().error(f"Map callback test failed :( {e}")
+        except Exception as e:
+            self.get_logger().error(f"Map callback test errored out for some other reason :( {e}")
 
         try:
             self.test_precompute()
             self.num_passed += 1
-        except AssertionError:
-            self.get_logger().error("Precompute test failed :(")
-        except:
-            self.get_logger().error("Precompute test errored out for some other reason :(")
+        except AssertionError as e:
+            self.get_logger().error(f"Precompute test failed :( {e}")
+        except Exception as e:
+            self.get_logger().error(f"Precompute test errored out for some other reason :( {e}")
 
         try:
             self.test_evaluate()
             self.num_passed += 1
-        except AssertionError:
-            self.get_logger().error("Evaluate test failed :(")
-        except:
-            self.get_logger().error("Evaluate test errored out for some other reason :(")
-        
+        except AssertionError as e:
+            self.get_logger().error(f"Evaluate test failed :( {e}")
+        except Exception as e:
+            self.get_logger().error(f"Evaluate test errored out for some other reason :( {e}")
+
         if self.num_passed == 3:
             self.get_logger().info("All tests passed :)")
 
@@ -101,7 +101,8 @@ class SensorModelTest(Node):
 
         assert actual.shape == expected.shape, f"Wrong shape of the precomputed table. Expected {expected.shape}, got {actual.shape}"
 
-        assert np.allclose(actual, expected, atol=self.tol), "Wrong values in the precomputed table"
+        assert np.allclose(actual, expected,
+                           atol=self.tol), f"Wrong values in the precomputed table. First row: {actual[0, :]}, expected {expected[0, :]}"
 
         self.get_logger().info("Precompute test passed :)")
 
