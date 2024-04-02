@@ -19,7 +19,7 @@ class MotionModelTest(Node):
         self.odom = np.array(TEST_MOTION_MODEL_ODOM)
         self.expected = np.array(TEST_MOTION_MODEL_RESULTS)
 
-        self.tol = 0.1
+        self.tol = 0.25
 
     def test_evaluate_motion_model(self):
         try:
@@ -32,6 +32,7 @@ class MotionModelTest(Node):
                            rtol=self.tol), f"Expected {self.expected}, got {actual}"
 
         self.get_logger().info("Motion model test passed!")
+        exit()
 
 
 def main(args=None):

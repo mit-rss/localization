@@ -122,6 +122,6 @@ class SensorModelTest(Node):
 def main(args=None):
     rclpy.init(args=args)
     pf = SensorModelTest()
-    pf.get_logger().info("Waiting for map, running the racecar simulator in a few seconds...")
+    pf.get_logger().info("Waiting for map, please run localization.test_map.launch.xml in a few seconds...")
     rclpy.spin(pf)
     rclpy.shutdown()

@@ -1,6 +1,5 @@
 import os
 from ament_index_python.packages import get_package_share_directory
-from launch.actions import TimerAction
 from launch_ros.actions import Node
 
 from launch import LaunchDescription
@@ -20,8 +19,4 @@ def generate_launch_description():
             output='screen',
             parameters=[localization_params]
         ),
-        TimerAction(
-            period=2.0,
-            actions=[],
-        )
     ])
