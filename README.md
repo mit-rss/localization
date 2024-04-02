@@ -78,7 +78,22 @@ Before your briefing, you should seek out a TA to check off your solution during
 
 You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package.
 
-**Note that while the autograder will add noise to the odometry when evaluating your solution, you must augment the odometry with your own noise when using the 2D simulation environment, both in order to increase your confidence in your solution and to evaluate your implementation in a realistic environment when providing analysis in your report and briefing.**
+### [Running Unit Tests (updated 1 April 2024)](#running-unit-tests)
+
+We have provided a few unit tests for you to test your sensor model and motion model. To run these tests, do:
+
+```bash
+# ====== motion model ======
+ros2 launch localization motion_model_test.launch.py
+# ==========================
+# ====== sensor model ======
+ros2 launch localization sensor_model_test.launch.py
+# this will wait for you to run test_map.launch.xml in another terminal
+ros2 launch localization test_map.launch.xml
+# ==========================
+```
+
+If your code errors out or fails, the console will indicate that. Otherwise, you should see a few messages indicating that the tests have passed, and the script will exit. If you are curious about what might have gone wrong, please inspect the `launch/unit_tests/*.py` launch files. 
 
 ### Part C: Grading for localization in ROBOT (3 points) - **TEAMWORK**, *REQUIRED*
 
