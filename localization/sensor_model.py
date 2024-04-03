@@ -31,11 +31,11 @@ class SensorModel:
 
         ####################################
         # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 0
-        self.alpha_rand = 0
-        self.sigma_hit = 0
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
+        self.sigma_hit = 8
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
@@ -86,8 +86,21 @@ class SensorModel:
         returns:
             No return type. Directly modify `self.sensor_model_table`.
         """
+        z_max = 200
+        z_k = np.linspace(0, z_max, 201)
 
-        raise NotImplementedError
+        for d in np.linspace(0, z_max, 201):
+            p_hit = np.exp(-np.square(z_k - d)/(2*self.sigma_hit**2))
+            p_hit = p_hit / np.sum(p_hit) # multiply by eta=1/sum(p_hit)
+            p_short = np.where(z_k < d, 2/d * (1 - z_k/d), 0)
+            p_max = np.where(z_k == z_max, 0, 1)
+            p_rand = np.ones(201) * 1/201
+
+            p_totals = p_hit * self.alpha_hit + p_short * self.alpha_short + p_max * self.alpha_max + p_rand * self.alpha_rand
+            p_totals = p_totals / np.sum(p_totals) # normalize p_totals
+            self.sensor_model_table[:, int(d)] = p_totals # this will only work if z_max=200, otherwise find a way to convert d to index
+
+
 
     def evaluate(self, particles, observation):
         """
@@ -122,8 +135,22 @@ class SensorModel:
         # This produces a matrix of size N x num_beams_per_particle 
 
         scans = self.scan_sim.scan(particles)
+        z_k = scans * self.map_resolution * self.lidar_scale_to_map_scale
+        d = observation * self.map_resolution * self.lidar_scale_to_map_scale
+
+        z_k_indices = np.round(z_k).astype(int)
+        z_k_indices = np.clip(z_k_indices, 0, 200)
+        d_indices = np.round(d).astype(int)
+        d_indices = np.clip(d_indices, 0, 200)
+
+        probabilities = np.exp(np.sum(np.log(self.sensor_model_table[d_indices, z_k_indices]), axis=1))
+        probabilities = probabilities / np.sum(probabilities)
+
+        return probabilities
 
         ####################################
+
+        
 
     def map_callback(self, map_msg):
         # Convert the map to a numpy array

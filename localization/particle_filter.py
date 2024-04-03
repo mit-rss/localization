@@ -8,6 +8,7 @@ from rclpy.node import Node
 import rclpy
 
 assert rclpy
+import numpy as np
 
 
 class ParticleFilter(Node):
@@ -75,6 +76,62 @@ class ParticleFilter(Node):
         # Publish a transformation frame between the map
         # and the particle_filter_frame.
 
+        self.particles = []
+
+
+
+    def pose_callback(self):
+        '''
+        For initializing the particle poses ?
+        '''
+        pass
+
+
+
+    def odom_callback(self, odom_data):
+        '''
+        Whenever you get odometry data use the motion model to update the particle positions
+        '''
+        pose = odom_data.pose
+        self.particles = self.motion_model.evaluate(self.particles, pose)
+        self.calculate_new_frame_transform()
+
+
+
+    def laser_callback(self, observation):
+        '''
+        Whenever you get sensor data use the sensor model to compute the particle probabilities. 
+        Then resample the particles based on these probabilities
+
+        args:
+            observation (Lidar) : Correct scan produced by the robot
+
+        '''
+        probs = self.sensor_model.evaluate(self.convert_to_xyt(self.particles), observation)
+        self.particles = np.random.choice(self.particles, len(self.particles), replace=True, p=probs)
+        self.calculate_new_frame_transform()
+
+
+
+    def calculate_new_frame_transform(self):
+        '''
+        Anytime the particles are update (either via the motion or sensor model), determine 
+        the "average" (term used loosely) particle pose and publish that transform.
+        '''
+        pass
+
+    def convert_to_xyt(self, particles):
+        '''
+        Convert particles between representations of position/orientation
+         
+        args:
+            array of Pose (ROS data structure that contains position as (x,y,z)
+            and orientation as (x,y,z,w))
+        returns:
+            array of [x,y,t] structure where x = position along x, y = position
+            along y, and t = theta along xy-plane
+        '''
+        pass
 
 def main(args=None):
     rclpy.init(args=args)
