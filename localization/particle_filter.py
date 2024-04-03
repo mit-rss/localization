@@ -2,7 +2,13 @@ from localization.sensor_model import SensorModel
 from localization.motion_model import MotionModel
 
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, PoseArray, Pose
+from sensor_msgs.msg import LaserScan
+
+from tf_transformations import euler_from_quaternion, quaternion_from_euler
+from threading import Lock
+
+import numpy as np
 
 from rclpy.node import Node
 import rclpy
@@ -18,6 +24,14 @@ class ParticleFilter(Node):
         self.declare_parameter('particle_filter_frame', "default")
         self.particle_filter_frame = self.get_parameter('particle_filter_frame').get_parameter_value().string_value
 
+        # Particles initialization constants
+        self.declare_parameter('num_particles', 200)
+        self.declare_parameter('particle_spread', 5.0)
+
+        self.num_particles = self.get_parameter('num_particles').get_parameter_value().integer_value
+        self.particle_spread = self.get_parameter('particle_spread').get_parameter_value().double_value
+        self.particles = np.zeros((self.num_particles, 3))
+
         #  *Important Note #1:* It is critical for your particle
         #     filter to obtain the following topic names from the
         #     parameters for the autograder to work correctly. Note
@@ -32,23 +46,15 @@ class ParticleFilter(Node):
         scan_topic = self.get_parameter("scan_topic").get_parameter_value().string_value
         odom_topic = self.get_parameter("odom_topic").get_parameter_value().string_value
 
-        self.laser_sub = self.create_subscription(LaserScan, scan_topic,
-                                                  self.laser_callback,
-                                                  1)
-
-        self.odom_sub = self.create_subscription(Odometry, odom_topic,
-                                                 self.odom_callback,
-                                                 1)
+        self.laser_sub = self.create_subscription(LaserScan, scan_topic, self.laser_callback, 1)
+        self.odom_sub = self.create_subscription(Odometry, odom_topic, self.odom_callback, 1)
 
         #  *Important Note #2:* You must respond to pose
         #     initialization requests sent to the /initialpose
         #     topic. You can test that this works properly using the
         #     "Pose Estimate" feature in RViz, which publishes to
         #     /initialpose.
-
-        self.pose_sub = self.create_subscription(PoseWithCovarianceStamped, "/initialpose",
-                                                 self.pose_callback,
-                                                 1)
+        self.pose_sub = self.create_subscription(PoseWithCovarianceStamped, "/initialpose", self.pose_callback, 1)
 
         #  *Important Note #3:* You must publish your pose estimate to
         #     the following topic. In particular, you must use the
@@ -56,12 +62,18 @@ class ParticleFilter(Node):
         #     provide the twist part of the Odometry message. The
         #     odometry you publish here should be with respect to the
         #     "/map" frame.
-
         self.odom_pub = self.create_publisher(Odometry, "/pf/pose/odom", 1)
+
+        # Visualization
+        self.viz_pub = self.create_publisher(PoseArray, "/particles", 1)
+        self.viz_timer = self.create_timer(1/20, self.visualize_particles)
 
         # Initialize the models
         self.motion_model = MotionModel(self)
         self.sensor_model = SensorModel(self)
+
+        # Synchronization primitive
+        self.lock = Lock()
 
         self.get_logger().info("=============+READY+=============")
 
@@ -74,10 +86,114 @@ class ParticleFilter(Node):
         #
         # Publish a transformation frame between the map
         # and the particle_filter_frame.
+    
+    def laser_callback(self, scan: LaserScan):
+        """
+        From the instructions:
+        Whenever you get sensor data use the sensor model to compute the particle probabilities.
+        Then resample the particles based on these probabilities.
+
+        Anytime the particles are update (either via the motion or sensor model), determine the
+        "average" (term used loosely) particle pose and publish that transform.
+        """
+        with self.lock:
+            probabilities = self.sensor_model.evaluate(self.particles, scan.ranges)
+            self.particles = np.random.choice(self.particles, self.num_particles, p=probabilities)
+            self.publish_transform()
+
+    def odom_callback(self, odom: Odometry):
+        """
+        From the instructions:
+        Whenever you get odometry data use the motion model to update the particle positions.
+
+        Anytime the particles are update (either via the motion or sensor model), determine the
+        "average" (term used loosely) particle pose and publish that transform.
+        """
+        x, y, theta = ParticleFilter.msg_to_pose(odom.pose)
+
+        with self.lock:
+            self.particles = self.motion_model.evaluate(self.particles, np.array(x, y, theta))
+            self.publish_transform()
+
+    def publish_transform(self):
+        """
+        NOTE: This function must be called with an ownership of `self.lock` to prevent race conditions
+
+        From the instructions:
+        Anytime the particles are update (either via the motion or sensor model), determine the
+        "average" (term used loosely) particle pose and publish that transform.
+        """
+        x = np.average(self.particles[:, 0]).item()
+        y = np.average(self.particles[:, 1]).item()
+
+        theta = self.particles[:, 2]
+        theta = np.arctan2(np.average(np.sin(theta)), np.average(np.cos(theta))).item()
+
+        odom = Odometry()
+        odom.header.stamp = self.get_clock().now().to_msg()
+        odom.header.frame_id = "map"
+        odom.pose = ParticleFilter.pose_to_msg(x, y, theta)
+
+        self.odom_pub.publish(odom)
+
+    def pose_callback(self, msg: PoseWithCovarianceStamped):
+        """
+        From the instruction:
+        You will also consider how you want to initialize your particles. We recommend that you
+        should be able to use some of the interactive topics in rviz to set an initialize "guess"
+        of the robot's location with a random spread of particles around a clicked point or pose.
+        Localization without this type of initialization (aka the global localization or the
+        kidnapped robot problem) is very hard.
+        """
+        x, y, _ = ParticleFilter.msg_to_pose(msg.pose.pose)
+
+        with self.lock:
+            self.particles = (np.random.random(self.particles.shape) - 0.5) * self.particle_spread
+            self.particles += np.array([x, y, 0])
+
+    def visualize_particles(self):
+        """
+        Display the current state of the particles in RViz
+        """
+        with self.lock:
+            msg = PoseArray()
+            msg.header.frame_id = "map"
+            msg.header.stamp = self.get_clock().now().to_msg()
+
+            msg.poses.extend(ParticleFilter.pose_to_msg(x, y, t) for [x, y, t] in self.particles)
+        
+        self.viz_pub.publish(msg)
+
+    @staticmethod
+    def pose_to_msg(x, y, theta):
+        msg = Pose()
+
+        msg.position.x = float(x)
+        msg.position.y = float(y)
+        msg.position.z = 0.0
+        
+        quaternion = quaternion_from_euler(0.0, 0.0, theta)
+        msg.orientation.x = quaternion[0]
+        msg.orientation.y = quaternion[1]
+        msg.orientation.z = quaternion[2]
+        msg.orientation.w = quaternion[3]
+
+        return msg
+
+    @staticmethod
+    def msg_to_pose(msg: Pose):
+        pos, ori = msg.position, msg.orientation
+
+        x, y = pos.x, pos.y
+        theta = euler_from_quaternion((ori.x, ori.y, ori.z, ori.w))[-1]
+
+        return x, y, theta
 
 
 def main(args=None):
     rclpy.init(args=args)
-    pf = ParticleFilter()
-    rclpy.spin(pf)
+    try:
+        rclpy.spin(ParticleFilter())
+    except KeyboardInterrupt:
+        pass
     rclpy.shutdown()
