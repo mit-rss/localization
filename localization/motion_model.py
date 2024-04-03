@@ -47,14 +47,13 @@ class MotionModel:
         #calculate random noise (b is stand. dev, passing in variance)
         sample = lambda b : np.random.normal(loc=0.0, scale=np.sqrt(b), size=None)
 
-        #use odometry controls to influence random noise generation
-        #abs to remove neg. square root error
-        rand_noise = np.array([[sample(self.a1*math.abs(dx)+self.a2*math.abs(d0))],
-                               [sample(self.a1*math.abs(dy)+self.a2*math.abs(d0))],
-                               [sample(self.a3*math.abs(d0)+self.a4*math.abs(dx+dy))]])
-
         for particle in particles:
             theta = particle[2]
+            #use odometry controls to influence random noise generation
+            #abs to remove neg. square root error
+            rand_noise = np.array([[sample(self.a1*math.abs(dx)+self.a2*math.abs(d0))],
+                               [sample(self.a1*math.abs(dy)+self.a2*math.abs(d0))],
+                               [sample(self.a3*math.abs(d0)+self.a4*math.abs(dx+dy))]])
 
             T = np.array([[math.cos(-theta), -math.sin(-theta), 0],[math.sin(-theta), math.cos(-theta), 0],[0,0,1]])
             T_inv = np.linalg.inv(T)
