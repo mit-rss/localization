@@ -76,29 +76,48 @@ class ParticleFilter(Node):
         # Publish a transformation frame between the map
         # and the particle_filter_frame.
 
-        self.particles = []
+        self.particles = np.zeros((100, 3))  # Example: 100 particles
+        self.last_pose = None
 
 
 
-    def pose_callback(self):
+    def pose_callback(self, msg):
         '''
-        For initializing the particle poses ?
+        Handle initialization of particles based on an initial pose estimate.
         '''
-        pass
+        pose = msg.pose.pose  # Extract the Pose from the PoseWithCovarianceStamped message
+        x, y, theta = self.pose_to_xyt(pose)
+        # Initialize particles around this pose
+        self.particles = np.random.normal([x, y, theta], [0.1, 0.1, 0.01], (len(self.particles), 3)) # arbitrarily chosen variances
 
 
 
-    def odom_callback(self, odom_data):
+    def odom_callback(self, msg):
         '''
         Whenever you get odometry data use the motion model to update the particle positions
         '''
-        pose = odom_data.pose
-        self.particles = self.motion_model.evaluate(self.particles, pose)
+        current_pose = msg.pose.pose  # Extract the current pose
+        current_xyt = self.pose_to_xyt(current_pose)
+
+        if self.last_pose is not None:
+            # Compute differences
+            dx = current_xyt[0] - self.last_pose[0]
+            dy = current_xyt[1] - self.last_pose[1]
+            dtheta = current_xyt[2] - self.last_pose[2]
+
+            # Normalize dtheta to be between -pi and pi
+            dtheta = (dtheta + np.pi) % (2 * np.pi) - np.pi
+
+            # Update particles with the motion model
+            self.particles = self.motion_model.evaluate(self.particles, [dx, dy, dtheta])
+
+        # Update the last pose
+        self.last_pose = current_xyt
         self.calculate_new_frame_transform()
 
 
 
-    def laser_callback(self, observation):
+    def laser_callback(self, msg):
         '''
         Whenever you get sensor data use the sensor model to compute the particle probabilities. 
         Then resample the particles based on these probabilities
@@ -107,8 +126,9 @@ class ParticleFilter(Node):
             observation (Lidar) : Correct scan produced by the robot
 
         '''
-        probs = self.sensor_model.evaluate(self.convert_to_xyt(self.particles), observation)
-        self.particles = np.random.choice(self.particles, len(self.particles), replace=True, p=probs)
+        weights = self.sensor_model.evaluate(self.convert_to_xyt(self.particles), msg)
+        chosen_indices = np.random.choice(np.arange(len(weights)), size=len(weights), replace=True, p=weights)
+        self.particles = self.particles[chosen_indices]
         self.calculate_new_frame_transform()
 
 
@@ -120,7 +140,9 @@ class ParticleFilter(Node):
         '''
         pass
 
-    def convert_to_xyt(self, particles):
+
+
+    def pose_to_xyt(self, pose):
         '''
         Convert particles between representations of position/orientation
          
@@ -131,7 +153,19 @@ class ParticleFilter(Node):
             array of [x,y,t] structure where x = position along x, y = position
             along y, and t = theta along xy-plane
         '''
-        pass
+        x = pose.position.x
+        y = pose.position.y
+        
+        # calculating yaw from quaternion (theta)
+        t3 = +2.0 * (pose.orientation.w * pose.orientation.z + pose.orientation.x * pose.orientation.y)
+        t4 = +1.0 - 2.0 * (pose.orientation.y * pose.orientation.y + pose.orientation.z * pose.orientation.z)
+        theta = np.arctan2(t3, t4)
+        # done with theta calculation
+
+        return np.array([x, y, theta])
+    
+
+
 
 def main(args=None):
     rclpy.init(args=args)
