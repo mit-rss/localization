@@ -2,8 +2,13 @@ from localization.sensor_model import SensorModel
 from localization.motion_model import MotionModel
 
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, PoseArray, Pose
 from sensor_msgs.msg import LaserScan
+
+from tf_transformations import euler_from_quaternion, quaternion_from_euler
+from threading import Lock
+
+import numpy as np
 
 from rclpy.node import Node
 import rclpy
@@ -18,6 +23,14 @@ class ParticleFilter(Node):
 
         self.declare_parameter('particle_filter_frame', "default")
         self.particle_filter_frame = self.get_parameter('particle_filter_frame').get_parameter_value().string_value
+
+        # Particles initialization constants
+        self.declare_parameter('num_particles', 200)
+        self.declare_parameter('particle_spread', 5.0)
+
+        self.num_particles = self.get_parameter('num_particles').get_parameter_value().integer_value
+        self.particle_spread = self.get_parameter('particle_spread').get_parameter_value().double_value
+        self.particles = np.zeros((self.num_particles, 3))
 
         #  *Important Note #1:* It is critical for your particle
         #     filter to obtain the following topic names from the
@@ -51,9 +64,16 @@ class ParticleFilter(Node):
         #     "/map" frame.
         self.odom_pub = self.create_publisher(Odometry, "/pf/pose/odom", 1)
 
+        # Visualization
+        self.viz_pub = self.create_publisher(PoseArray, "/particles", 1)
+        self.viz_timer = self.create_timer(1/20, self.visualize_particles)
+
         # Initialize the models
         self.motion_model = MotionModel(self)
         self.sensor_model = SensorModel(self)
+
+        # Synchronization primitive
+        self.lock = Lock()
 
         self.get_logger().info("=============+READY+=============")
 
@@ -86,9 +106,11 @@ class ParticleFilter(Node):
         Anytime the particles are update (either via the motion or sensor model), determine the
         "average" (term used loosely) particle pose and publish that transform.
         """
-        pass
+        with self.lock:
+            pass
+        # self.motion_model.evaluate()
 
-    def pose_callback(self, pose: PoseWithCovarianceStamped):
+    def pose_callback(self, msg: PoseWithCovarianceStamped):
         """
         From the instruction:
         You will also consider how you want to initialize your particles. We recommend that you
@@ -97,7 +119,49 @@ class ParticleFilter(Node):
         Localization without this type of initialization (aka the global localization or the
         kidnapped robot problem) is very hard.
         """
-        pass
+        x, y, _ = ParticleFilter.msg_to_pose(msg.pose.pose)
+
+        with self.lock:
+            self.particles = (np.random.random(self.particles.shape) - 0.5) * self.particle_spread
+            self.particles += np.array([x, y, 0])
+
+    def visualize_particles(self):
+        """
+        Display the current state of the particles in RViz
+        """
+        with self.lock:
+            msg = PoseArray()
+            msg.header.frame_id = "map"
+            msg.header.stamp = self.get_clock().now().to_msg()
+
+            msg.poses.extend(ParticleFilter.pose_to_msg(x, y, t) for [x, y, t] in self.particles)
+        
+        self.viz_pub.publish(msg)
+
+    @staticmethod
+    def pose_to_msg(x, y, theta):
+        msg = Pose()
+
+        msg.position.x = x
+        msg.position.y = y
+        msg.position.z = 0.0
+        
+        quaternion = quaternion_from_euler(0.0, 0.0, theta)
+        msg.orientation.x = quaternion[0]
+        msg.orientation.y = quaternion[1]
+        msg.orientation.z = quaternion[2]
+        msg.orientation.w = quaternion[3]
+
+        return msg
+
+    @staticmethod
+    def msg_to_pose(msg: Pose):
+        pos, ori = msg.position, msg.orientation
+
+        x, y = pos.x, pos.y
+        theta = euler_from_quaternion((ori.x, ori.y, ori.z, ori.w))[-1]
+
+        return x, y, theta
 
 
 def main(args=None):
