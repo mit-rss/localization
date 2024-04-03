@@ -35,7 +35,7 @@ class SensorModel:
         self.alpha_short = 0.07
         self.alpha_max = 0.07
         self.alpha_rand = 0.12
-        self.sigma_hit = 8
+        self.sigma_hit = 8.0
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
@@ -92,9 +92,9 @@ class SensorModel:
         for d in np.linspace(0, z_max, 201):
             p_hit = np.exp(-np.square(z_k - d)/(2*self.sigma_hit**2))
             p_hit = p_hit / np.sum(p_hit) # multiply by eta=1/sum(p_hit)
-            p_short = np.where(z_k < d, 2/d * (1 - z_k/d), 0)
-            p_max = np.where(z_k == z_max, 0, 1)
-            p_rand = np.ones(201) * 1/201
+            p_short = np.where(np.logical_and(z_k <= d, d != 0), 2/d * (1 - z_k/d), 0)
+            p_max = np.where(z_k == z_max, 1, 0)
+            p_rand = np.ones(201) * 1/200
 
             p_totals = p_hit * self.alpha_hit + p_short * self.alpha_short + p_max * self.alpha_max + p_rand * self.alpha_rand
             p_totals = p_totals / np.sum(p_totals) # normalize p_totals
@@ -135,11 +135,11 @@ class SensorModel:
         # This produces a matrix of size N x num_beams_per_particle 
 
         scans = self.scan_sim.scan(particles)
-        z_k = scans * self.map_resolution * self.lidar_scale_to_map_scale
-        d = observation * self.map_resolution * self.lidar_scale_to_map_scale
+        z_k = scans / (self.resolution * self.lidar_scale_to_map_scale)
+        d = observation / (self.resolution * self.lidar_scale_to_map_scale)
 
-        z_k_indices = np.round(z_k).astype(int)
-        z_k_indices = np.clip(z_k_indices, 0, 200)
+        z_k_indices = np.round(z_k).astype(int) # step 1 is to swap z_k and d (z_k is the faulty lidar scan, d is the ground truth for each particle)
+        z_k_indices = np.clip(z_k_indices, 0, 200) # then, stack some copies of z_k for each 
         d_indices = np.round(d).astype(int)
         d_indices = np.clip(d_indices, 0, 200)
 

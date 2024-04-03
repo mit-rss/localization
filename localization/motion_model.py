@@ -8,8 +8,8 @@ class MotionModel:
         # Do any precomputation for the motion
         # model here.
 
-        self.position_variance = 0.01
-        self.angle_variance = 0.001
+        self.position_variance = 0#0.01
+        self.angle_variance = 0#0.001
 
         ####################################
 
@@ -33,9 +33,9 @@ class MotionModel:
         position_noise = np.random.normal(loc=0, scale=np.sqrt(self.position_variance), size=(N,2))
         angle_noise = np.random.normal(loc=0, scale=np.sqrt(self.angle_variance), size=N)
 
-        x_prime = particles[:, 0] + dx * np.cos(particles[:, 2]) + position_noise[:, 0]
-        y_prime = particles[:, 1] + dy * np.sin(particles[:, 2]) + position_noise[:, 1]
         theta_prime = particles[:, 2] + dtheta + angle_noise
+        x_prime = particles[:, 0] + dx * np.cos(particles[:, 2]) - dy * np.sin(particles[:, 2]) + position_noise[:, 0]
+        y_prime = particles[:, 1] + dx * np.sin(particles[:, 2]) + dy * np.cos(particles[:, 2]) + position_noise[:, 1]
 
         # Combine the updates into a new array
         updated_particles = np.stack((x_prime, y_prime, theta_prime), axis=-1)
