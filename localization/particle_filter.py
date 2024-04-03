@@ -96,7 +96,10 @@ class ParticleFilter(Node):
         Anytime the particles are update (either via the motion or sensor model), determine the
         "average" (term used loosely) particle pose and publish that transform.
         """
-        pass
+        with self.lock:
+            probabilities = self.sensor_model.evaluate(self.particles, scan.ranges)
+            self.particles = np.random.choice(self.particles, self.num_particles, p=probabilities)
+            self.publish_transform()
 
     def odom_callback(self, odom: Odometry):
         """
@@ -106,9 +109,32 @@ class ParticleFilter(Node):
         Anytime the particles are update (either via the motion or sensor model), determine the
         "average" (term used loosely) particle pose and publish that transform.
         """
+        x, y, theta = ParticleFilter.msg_to_pose(odom.pose)
+
         with self.lock:
-            pass
-        # self.motion_model.evaluate()
+            self.particles = self.motion_model.evaluate(self.particles, np.array(x, y, theta))
+            self.publish_transform()
+
+    def publish_transform(self):
+        """
+        NOTE: This function must be called with an ownership of `self.lock` to prevent race conditions
+
+        From the instructions:
+        Anytime the particles are update (either via the motion or sensor model), determine the
+        "average" (term used loosely) particle pose and publish that transform.
+        """
+        x = np.average(self.particles[:, 0]).item()
+        y = np.average(self.particles[:, 1]).item()
+
+        theta = self.particles[:, 2]
+        theta = np.arctan2(np.average(np.sin(theta)), np.average(np.cos(theta))).item()
+
+        odom = Odometry()
+        odom.header.stamp = self.get_clock().now().to_msg()
+        odom.header.frame_id = "map"
+        odom.pose = ParticleFilter.pose_to_msg(x, y, theta)
+
+        self.odom_pub.publish(odom)
 
     def pose_callback(self, msg: PoseWithCovarianceStamped):
         """
@@ -142,8 +168,8 @@ class ParticleFilter(Node):
     def pose_to_msg(x, y, theta):
         msg = Pose()
 
-        msg.position.x = x
-        msg.position.y = y
+        msg.position.x = float(x)
+        msg.position.y = float(y)
         msg.position.z = 0.0
         
         quaternion = quaternion_from_euler(0.0, 0.0, theta)
