@@ -95,6 +95,14 @@ ros2 launch localization test_map.launch.xml
 
 If your code errors out or fails, the console will indicate that. Otherwise, you should see a few messages indicating that the tests have passed, and the script will exit. If you are curious about what might have gone wrong, please inspect the `localization/test/*.py` files. 
 
+A couple notes about the tests, should you wish to use them:
+
+* In the motion model test, we assume a deterministic motion model to keep things simple. For this reason, please have your motion model behavior be controlled by a `self.deterministic` field. If `self.deterministic = True`, the motion model `evaluate` should not add noise to the odometry. If `self.deterministic = False`, the motion model should add noise to the odometry (needed for localization).
+
+* You may notice that the sensor_model precompute test is difficult to debug. To make this process easier, we have included a file `assets/debug_precomputed_table.pkl` containing precomputed tables you should be getting if `alpha = 1` for each of `alpha_hit`, `alpha_rand`, `alpha_max`, `alpha_short`. For example, if you load the dict into the variable `results_each`, `results_each['hit']` gives the table for `alpha_hit = 1` and `alpha_rand = alpha_short = alpha_max = 0`. 
+
+* Please note that for short, the first column may be `nan` if you are trying to normalize the columns. As `np.nan != np.nan`, we followed the convention of `0/0 = 0`. This will not be an issue in practice, since you won't be having `alpha_short = 1`.
+
 ### Part C: Grading for localization in ROBOT (3 points) - **TEAMWORK**, *REQUIRED*
 
 For this part you will need to adapt your MCL implementation from part B to work in your car, and conduct experimental analysis of your algorithm's performance for your report and briefing. See part C of the [instructions notebook](README.ipynb) for more details on how to adapt your code to run in your car.
