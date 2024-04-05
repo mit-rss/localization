@@ -15,6 +15,7 @@ class MotionModel:
         self.a3 = 1
         self.a4 = 1
         self.node = node
+        self.deterministic = True
 
         ####################################
 
@@ -38,7 +39,7 @@ class MotionModel:
         """
 
         ####################################
-        particles_new_rows = []
+        
 
         #note these can be negative, account for accordingly in noise calc
         dx = odometry[0]
@@ -48,9 +49,9 @@ class MotionModel:
         # Extract the last column (thetas)
         thetas = particles[:, -1]
 
-        # Create 3x3 transformation matrices using broadcasting
-        cos_thetas = np.cos(thetas)
-        sin_thetas = np.sin(thetas)
+        # Create 3x3 transformation matrices using broadcasting, use - theta for opposite direction rotation
+        cos_thetas = np.cos(-thetas)
+        sin_thetas = np.sin(-thetas)
 
         # Create the transformation matrices
         transformation_matrices = np.zeros((len(thetas), 3, 3))
@@ -63,41 +64,20 @@ class MotionModel:
         flattened_matrices = transformation_matrices.reshape(-1, 3)
 
 
-        sample = lambda b : np.random.normal(loc=0.0, scale=np.sqrt(b), size=particles.shape[0])
+        sample = lambda b : np.random.normal(loc=0.0, scale=np.sqrt(b))
 
-        #use odometry controls to influence random noise generation
-        #abs to remove neg. square root error
-        #creates 3xn noise vector
+        # #use odometry controls to influence random noise generation
+        # #abs to remove neg. square root error
+        # #creates 3xn noise vector
         rand_noise = np.array([sample(self.a1*abs(dx)+self.a2*abs(d0)),
                             sample(self.a1*abs(dy)+self.a2*abs(d0)),
                             sample(self.a3*abs(d0)+self.a4*abs(dx+dy))])
 
         
-
-
-        particles_new = flattened_matrices.dot(odometry).reshape(-1,3) + particles 
-        self.node.get_logger().info(f"{rand_noise.shape}")
-        self.node.get_logger().info(f"{particles_new.shape}")
-        #self.get_logger().info("did most stuff")
-        particles_new = particles_new + rand_noise.T
-
-        # #calculate random noise (b is stand. dev, passing in variance)
-        # sample = lambda b : np.random.normal(loc=0.0, scale=np.sqrt(b), size=None)
-
-        # for particle in particles:
-        #     theta = particle[2]
-        #     #use odometry controls to influence random noise generation
-        #     #abs to remove neg. square root error
-        #     rand_noise = np.array([[sample(self.a1*math.abs(dx)+self.a2*math.abs(d0))],
-        #                        [sample(self.a1*math.abs(dy)+self.a2*math.abs(d0))],
-        #                        [sample(self.a3*math.abs(d0)+self.a4*math.abs(dx+dy))]])
-
-        #     T = np.array([[math.cos(-theta), -math.sin(-theta), 0],[math.sin(-theta), math.cos(-theta), 0],[0,0,1]])
-        #     T_inv = np.linalg.inv(T)
-        #     new_particle = T_inv*odometry.T+rand_noise+particle.T
-        #     particles_new_rows.append(new_particle.T)
-        
-        # particles_new = np.concatenate(particles_new_rows, axis=0)
+       
+        new_odometry = odometry if self.deterministic else (odometry + rand_noise)
+        particles_new = flattened_matrices.dot(new_odometry).reshape(-1,3) + particles 
+       
         return particles_new
 
         ####################################
