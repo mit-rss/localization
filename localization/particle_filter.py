@@ -96,8 +96,11 @@ class ParticleFilter(Node):
         Anytime the particles are update (either via the motion or sensor model), determine the
         "average" (term used loosely) particle pose and publish that transform.
         """
+        return
+    
         with self.lock:
             probabilities = self.sensor_model.evaluate(self.particles, np.array(scan.ranges))
+            self.get_logger().info(str(np.sum(probabilities)))
             probabilities = probabilities/np.sum(probabilities)
             idx = np.random.choice(self.num_particles, self.num_particles, p=probabilities)
             self.particles = self.particles[idx, :]
@@ -111,7 +114,10 @@ class ParticleFilter(Node):
         Anytime the particles are update (either via the motion or sensor model), determine the
         "average" (term used loosely) particle pose and publish that transform.
         """
-        x, y, theta = ParticleFilter.msg_to_pose(odom.pose.pose)
+        #x, y, theta = ParticleFilter.msg_to_pose(odom.pose.pose)
+        linear = odom.twist.twist.linear
+        x, y = linear.x, linear.y
+        theta = odom.twist.twist.angular.z
 
         with self.lock:
             self.particles = self.motion_model.evaluate(self.particles, np.array([x, y, theta]))
@@ -134,6 +140,8 @@ class ParticleFilter(Node):
         odom = Odometry()
         odom.header.stamp = self.get_clock().now().to_msg()
         odom.header.frame_id = "map"
+        odom.child_frame_id = "base_link_pf"
+        
         odom.pose.pose = ParticleFilter.pose_to_msg(x, y, theta)
 
         self.odom_pub.publish(odom)

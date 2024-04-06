@@ -46,6 +46,11 @@ class MotionModel:
         dy = odometry[1]
         d0 = odometry[2]
 
+        # particles[:, 0] += dx
+        # particles[:, 1] += dy
+
+        # return particles
+
         # Extract the last column (thetas)
         thetas = particles[:, -1]
 
@@ -59,6 +64,8 @@ class MotionModel:
         transformation_matrices[:, 0, 1] = sin_thetas
         transformation_matrices[:, 1, 0] = -sin_thetas
         transformation_matrices[:, 1, 1] = cos_thetas
+        # transformation_matrices[:, 2, 0] = dx
+        # transformation_matrices[:, 2, 1] = dy
         transformation_matrices[:, 2, 2] = 1
         
         flattened_matrices = transformation_matrices.reshape(-1, 3)
