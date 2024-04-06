@@ -101,7 +101,7 @@ class ParticleFilter(Node):
         """
         with self.lock:
             probabilities = self.sensor_model.evaluate(self.particles, np.array(scan.ranges))
-            self.get_logger().info(str(np.sum(probabilities)))
+            # self.get_logger().info(str(np.sum(probabilities)))
             probabilities = probabilities/np.sum(probabilities)
             idx = np.random.choice(self.num_particles, self.num_particles, p=probabilities)
             self.particles = self.particles[idx, :]
@@ -115,26 +115,37 @@ class ParticleFilter(Node):
         Anytime the particles are update (either via the motion or sensor model), determine the
         "average" (term used loosely) particle pose and publish that transform.
         """
-        #x, y, theta = ParticleFilter.msg_to_pose(odom.pose.pose)
-        linear = odom.twist.twist.linear
-        x, y = linear.x, linear.y
-        theta = odom.twist.twist.angular.z
+        # x, y, theta = ParticleFilter.msg_to_pose(odom.pose.pose)
 
+        # try:
+        #     dx = x - self.last_x
+        #     dy = y - self.last_y
+        #     dtheta = np.arctan2(np.sin(theta) - np.sin(self.last_theta), np.cos(theta) - np.cos(self.last_theta))
+        # except AttributeError:
+        #     dx, dy, dtheta = 0, 0, 0
+        # self.last_x = x
+        # self.last_y = y
+        # self.last_theta = theta
+
+        # self.get_logger().info(f"d: {dx}, {dy}, {dtheta}")
+        linear = odom.twist.twist.linear
+        dx, dy = linear.x, linear.y
+        dtheta = odom.twist.twist.angular.z
         if self.last_odom_time is None:
             self.last_odom_time = time()
-            return
-        now = time()
-        dt = (now - self.last_odom_time)
-        self.last_odom_time = now
+            dt = 1
+        else:
+            now = time()
+            dt = (now - self.last_odom_time)
+            self.last_odom_time = now
+        dx *= dt
+        dy *= dt
+        dtheta *= dt
 
-        x *= dt
-        y *= dt
-        theta *= dt
-
-        self.get_logger().info(f"{x}, {y}, {theta}")
+        # self.get_logger().info(f"{x}, {y}, {theta}")
 
         with self.lock:
-            self.particles = self.motion_model.evaluate(self.particles, np.array([x, y, theta]))
+            self.particles = self.motion_model.evaluate(self.particles, np.array([dx, dy, dtheta]))
             self.publish_transform()
 
     def publish_transform(self):

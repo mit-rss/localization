@@ -49,7 +49,7 @@ class MotionModel:
             particles[i, 0] = t[0, 2]
             particles[i, 1] = t[1, 2]
             particles[i, 2] = np.arctan2(t[1, 0], t[0, 0])
-        particles += 0.01 * np.random.normal(size=particles.shape)
+        particles += 0.025 * np.random.normal(size=particles.shape)
         
         return particles
 
