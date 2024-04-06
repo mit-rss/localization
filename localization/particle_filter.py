@@ -26,8 +26,8 @@ class ParticleFilter(Node):
         self.particle_filter_frame = self.get_parameter('particle_filter_frame').get_parameter_value().string_value
 
         # Particles initialization constants
-        self.declare_parameter('num_particles', 200)
-        self.declare_parameter('particle_spread', 1.0)
+        self.declare_parameter('num_particles', 1000)
+        self.declare_parameter('particle_spread', 10.0)
 
         self.num_particles = self.get_parameter('num_particles').get_parameter_value().integer_value
         self.particle_spread = self.get_parameter('particle_spread').get_parameter_value().double_value
@@ -99,8 +99,6 @@ class ParticleFilter(Node):
         Anytime the particles are update (either via the motion or sensor model), determine the
         "average" (term used loosely) particle pose and publish that transform.
         """
-        return
-    
         with self.lock:
             probabilities = self.sensor_model.evaluate(self.particles, np.array(scan.ranges))
             self.get_logger().info(str(np.sum(probabilities)))
@@ -171,11 +169,13 @@ class ParticleFilter(Node):
         Localization without this type of initialization (aka the global localization or the
         kidnapped robot problem) is very hard.
         """
-        x, y, _ = ParticleFilter.msg_to_pose(msg.pose.pose)
+        x, y, theta = ParticleFilter.msg_to_pose(msg.pose.pose)
 
         with self.lock:
             self.particles = (np.random.random(self.particles.shape) - 0.5) * self.particle_spread
             self.particles += np.array([x, y, 0])
+
+            self.particles[:, 2] = theta + (np.random.random(self.num_particles) - 0.5) * 0.1
 
     def visualize_particles(self):
         """
