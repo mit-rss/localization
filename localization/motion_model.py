@@ -8,8 +8,8 @@ class MotionModel:
         # Do any precomputation for the motion
         # model here.
 
-        self.position_variance = 0#0.01
-        self.angle_variance = 0#0.001
+        self.position_variance = 0.2
+        self.angle_variance = 0.01
 
         ####################################
 

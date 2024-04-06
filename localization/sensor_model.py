@@ -16,7 +16,7 @@ class SensorModel:
 
     def __init__(self, node):
         node.declare_parameter('map_topic', "default")
-        node.declare_parameter('num_beams_per_particle', "default")
+        # node.declare_parameter('num_beams_per_particle', "default")
         node.declare_parameter('scan_theta_discretization', "default")
         node.declare_parameter('scan_field_of_view', "default")
         node.declare_parameter('lidar_scale_to_map_scale', 1)
@@ -135,16 +135,40 @@ class SensorModel:
         # This produces a matrix of size N x num_beams_per_particle 
 
         scans = self.scan_sim.scan(particles)
-        z_k = scans / (self.resolution * self.lidar_scale_to_map_scale)
-        d = observation / (self.resolution * self.lidar_scale_to_map_scale)
 
-        z_k_indices = np.round(z_k).astype(int) # step 1 is to swap z_k and d (z_k is the faulty lidar scan, d is the ground truth for each particle)
-        z_k_indices = np.clip(z_k_indices, 0, 200) # then, stack some copies of z_k for each 
+        conversion = float(self.resolution)*self.lidar_scale_to_map_scale
+
+        d = scans / conversion
+        z_k = observation / conversion
+
         d_indices = np.round(d).astype(int)
         d_indices = np.clip(d_indices, 0, 200)
 
-        probabilities = np.exp(np.sum(np.log(self.sensor_model_table[d_indices, z_k_indices]), axis=1))
-        probabilities = probabilities / np.sum(probabilities)
+        z_k_indices = np.round(z_k).astype(int) # step 1 is to swap z_k and d (z_k is the faulty lidar scan, d is the ground truth for each particle)
+        z_k_indices = np.clip(z_k_indices, 0, 200) # then, stack some copies of z_k for each 
+
+
+        # probabilities = np.exp(np.sum(np.log(self.sensor_model_table[z_k_indices, d_indices]), axis=1))
+
+        probabilities = np.prod(self.sensor_model_table[z_k_indices, d_indices], axis=1)
+
+        probabilities = np.power(probabilities, 1.0/2.2)
+
+        # probabilities = np.exp(np.sum(np.log(self.sensor_model_table[z_k_indices, d_indices]), axis=1))
+
+
+        # probabilities = []
+        # for _, scan in enumerate(d_indices):
+        #     sum_total = 0
+        #     for i, ray  in enumerate(scan):
+        #         z_k_index = z_k_indices[i]
+        #         log_prob = np.log(self.sensor_model_table[z_k_index, ray])
+        #         sum_total += log_prob
+        #     probabilities.append(np.exp(sum_total))
+        
+
+
+        # probabilities = probabilities / np.sum(probabilities)
 
         return probabilities
 
