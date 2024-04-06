@@ -81,7 +81,7 @@ class MotionModel:
                             sample(self.a3*abs(d0)+self.a4*abs(dx+dy))])
 
         
-       
+        # dx, dy, d-theta
         new_odometry = odometry if self.deterministic else (odometry + rand_noise)
         particles_new = flattened_matrices.dot(new_odometry).reshape(-1,3) + particles 
        

@@ -7,6 +7,7 @@ from sensor_msgs.msg import LaserScan
 
 from tf_transformations import euler_from_quaternion, quaternion_from_euler
 from threading import Lock
+from time import time
 
 import numpy as np
 
@@ -26,7 +27,7 @@ class ParticleFilter(Node):
 
         # Particles initialization constants
         self.declare_parameter('num_particles', 200)
-        self.declare_parameter('particle_spread', 5.0)
+        self.declare_parameter('particle_spread', 1.0)
 
         self.num_particles = self.get_parameter('num_particles').get_parameter_value().integer_value
         self.particle_spread = self.get_parameter('particle_spread').get_parameter_value().double_value
@@ -75,6 +76,8 @@ class ParticleFilter(Node):
         # Synchronization primitive
         self.lock = Lock()
 
+        self.last_odom_time = None
+
         self.get_logger().info("=============+READY+=============")
 
         # Implement the MCL algorithm
@@ -118,6 +121,19 @@ class ParticleFilter(Node):
         linear = odom.twist.twist.linear
         x, y = linear.x, linear.y
         theta = odom.twist.twist.angular.z
+
+        if self.last_odom_time is None:
+            self.last_odom_time = time()
+            return
+        now = time()
+        dt = (now - self.last_odom_time)
+        self.last_odom_time = now
+
+        x *= dt
+        y *= dt
+        theta *= dt
+
+        self.get_logger().info(f"{x}, {y}, {theta}")
 
         with self.lock:
             self.particles = self.motion_model.evaluate(self.particles, np.array([x, y, theta]))
