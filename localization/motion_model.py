@@ -41,7 +41,11 @@ class MotionModel:
         ####################################
         
         # Creates a rotation + translation matrix
-        T = lambda x: np.array([[np.cos(x[2]), -np.sin(x[2]), x[0]], [np.sin(x[2]), np.cos(x[2]), x[1]], [0, 0, 1]])
+        T = lambda x: np.array([
+            [+np.cos(x[2]), -np.sin(x[2]), x[0]],
+            [+np.sin(x[2]), +np.cos(x[2]), x[1]],
+            [0,             0,             1   ],
+        ])
 
         dT = T(odometry)
         for i, particle in enumerate(particles):
@@ -49,7 +53,7 @@ class MotionModel:
             particles[i, 0] = t[0, 2]
             particles[i, 1] = t[1, 2]
             particles[i, 2] = np.arctan2(t[1, 0], t[0, 0])
-        particles += 0.025 * np.random.normal(size=particles.shape)
+        particles += 0.75 * abs(odometry[2]) * np.random.normal(size=particles.shape)
         
         return particles
 

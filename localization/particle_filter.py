@@ -27,7 +27,7 @@ class ParticleFilter(Node):
 
         # Particles initialization constants
         self.declare_parameter('num_particles', 1000)
-        self.declare_parameter('particle_spread', 10.0)
+        self.declare_parameter('particle_spread', 1.0)
 
         self.num_particles = self.get_parameter('num_particles').get_parameter_value().integer_value
         self.particle_spread = self.get_parameter('particle_spread').get_parameter_value().double_value
@@ -102,8 +102,11 @@ class ParticleFilter(Node):
         with self.lock:
             probabilities = self.sensor_model.evaluate(self.particles, np.array(scan.ranges))
             # self.get_logger().info(str(np.sum(probabilities)))
-            probabilities = probabilities/np.sum(probabilities)
+            # probabilities = probabilities/np.sum(probabilities)
+            probabilities = np.exp(probabilities - np.max(probabilities))
+            probabilities /= np.sum(probabilities, axis=0)
             idx = np.random.choice(self.num_particles, self.num_particles, p=probabilities)
+            self.get_logger().info(f"{probabilities.shape}, {np.mean(idx)}")
             self.particles = self.particles[idx, :]
             self.publish_transform()
 
@@ -128,21 +131,32 @@ class ParticleFilter(Node):
         # self.last_theta = theta
 
         # self.get_logger().info(f"d: {dx}, {dy}, {dtheta}")
-        linear = odom.twist.twist.linear
-        dx, dy = linear.x, linear.y
-        dtheta = odom.twist.twist.angular.z
-        if self.last_odom_time is None:
-            self.last_odom_time = time()
-            dt = 1
-        else:
-            now = time()
-            dt = (now - self.last_odom_time)
-            self.last_odom_time = now
-        dx *= dt
-        dy *= dt
-        dtheta *= dt
+        # linear = odom.twist.twist.linear
+        # dx, dy = linear.x, linear.y
+        # dtheta = odom.twist.twist.angular.z
+        # self.get_logger().info(str(odom.header.stamp))
+        # if self.last_odom_time is None:
+        #     self.last_odom_time = time()
+        #     dt = 1
+        # else:
+        #     now = time()
+        #     dt = (now - self.last_odom_time)
+        #     self.last_odom_time = now
+        # dx *= dt
+        # dy *= dt
+        # dtheta *= dt
+        now = odom.header.stamp.sec + odom.header.stamp.nanosec * 1e-9
+        try:
+            dt = now - self.last_odom_stamp
+        except AttributeError:
+            dt = 0
+        self.last_odom_stamp = now
 
-        # self.get_logger().info(f"{x}, {y}, {theta}")
+        self.get_logger().info(str(now))
+
+        velocity = odom.twist.twist.linear
+        dx, dy = velocity.x * dt, velocity.y * dt
+        dtheta = odom.twist.twist.angular.z * dt
 
         with self.lock:
             self.particles = self.motion_model.evaluate(self.particles, np.array([dx, dy, dtheta]))

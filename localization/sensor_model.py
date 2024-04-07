@@ -71,6 +71,8 @@ class SensorModel:
             self.map_topic,
             self.map_callback,
             1)
+        
+        self.node = node
 
     def precompute_sensor_model(self):
         """
@@ -189,6 +191,8 @@ class SensorModel:
 
         #calculate the probability of each vector
         particle_probs = self.sensor_model_table[px_observation,particle_scans_px]
+
+        self.node.get_logger().info(f"{particle_probs.shape}")
 
         #total each particles probability
         total_particle_probs = np.prod(particle_probs, axis=1)
