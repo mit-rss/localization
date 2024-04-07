@@ -102,9 +102,10 @@ class ParticleFilter(Node):
         with self.lock:
             probabilities = self.sensor_model.evaluate(self.particles, np.array(scan.ranges))
             # self.get_logger().info(str(np.sum(probabilities)))
-            # probabilities = probabilities/np.sum(probabilities)
-            probabilities = np.exp(probabilities - np.max(probabilities))
-            probabilities /= np.sum(probabilities, axis=0)
+            probabilities **= 0.4
+            probabilities /= np.sum(probabilities)
+            # probabilities = np.exp(probabilities - np.max(probabilities))
+            # probabilities /= np.sum(probabilities, axis=0)
             idx = np.random.choice(self.num_particles, self.num_particles, p=probabilities)
             self.get_logger().info(f"{probabilities.shape}, {np.mean(idx)}")
             self.particles = self.particles[idx, :]
@@ -151,8 +152,6 @@ class ParticleFilter(Node):
         except AttributeError:
             dt = 0
         self.last_odom_stamp = now
-
-        self.get_logger().info(str(now))
 
         velocity = odom.twist.twist.linear
         dx, dy = velocity.x * dt, velocity.y * dt

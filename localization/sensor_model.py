@@ -213,10 +213,10 @@ class SensorModel:
         origin_p = map_msg.info.origin.position
         origin_o = map_msg.info.origin.orientation
         origin_o = euler_from_quaternion((
-            origin_o.w,
             origin_o.x,
             origin_o.y,
             origin_o.z,
+            origin_o.w,
         ))
         origin = (origin_p.x, origin_p.y, origin_o[2])
 
