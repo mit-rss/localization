@@ -1,5 +1,0 @@
-<launch>
-  <node pkg="localization" type="particle_filter.py" name="particle_filter" output="screen">
-    <rosparam command="load" file="$(find localization)/params.yaml"/>
-  </node>
-</launch>
