@@ -1,13 +1,14 @@
 | Deliverable | Due Date              |
 |---------------|----------------------------------------------------------------------------|
-| Part A individual submission (gradescope) | Friday, March 22nd at 11:59PM EST |
-| Part B team submission (gradescope) | Monday, April 8th at 11:59PM EST |
-| Pushed code | Monday, April 8th at 11:59PM EST |
-| OPTIONAL: Parts D and E | Monday, April 8th at 11:59PM EST |
-| **Briefing slides (slides on github pages)**  | Monday, April 8th at 1:00PM EST |
-| Briefing (8 min presentation + 3 min Q&A) | Wednesday, April 10th at 1:00PM EST |
-| Report (on team github pages website) | Wednesday, April 10th at 11:59PM EST |
-| [Team Member Assessment](https://forms.gle/KokjGRzaC5xhsbv7A) | Friday, April 12th at 11:59PM EST |
+| Part A individual submission (gradescope) | Friday, March 21nd at 11:59PM EST |
+| Part B team submission (gradescope) | Monday, April 7th at 11:59PM EST |
+| Pushed code | Monday, April 7th at 11:59PM EST |
+| OPTIONAL: Parts D and E | Monday, April 7th at 11:59PM EST |
+| **Briefing slides (slides on github pages)**  | Monday, April 7th at 1:00PM EST |
+| Briefing (8 min presentation + 3 min Q&A) | Monday, April 7th at 1:00PM EST |
+| Report (on team github pages website) | Friday, April 11th at 11:59PM EST |
+| Lab Checkoff | Wednesday, April 9th at 11:59PM EST |
+| [Team Member Assessment](https://forms.gle/KokjGRzaC5xhsbv7A) | Wednesday, April 9th at 11:59PM EST |
 
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
@@ -25,7 +26,7 @@ This lab consists of a number of modules, some required and some extra credit, s
 ## Submission and Grading
 
 This section describes the grading scheme for Lab 5, while the instructions to get started on the lab at available in the [instructions notebook](README.ipynb).
-The deliverables for this lab consist of five parts (two of which are optional) for a total of 10 points with 2 possible extra credit points. Parts A and E must be submitted individually, while the rest are teamwork. There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://forms.gle/KokjGRzaC5xhsbv7A). *Note that part A is due sooner than the others, to encourage getting an early start on it - see the deliverables table at the top of this handout for all deadlines.*
+The deliverables for this lab consist of five parts (two of which are optional) for a total of 10 points with 2 possible extra credit points. Parts A and E must be submitted individually, while the rest are teamwork. There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://forms.gle/5NEPu4AFvtLoBeeTA). *Note that part A is due sooner than the others, to encourage getting an early start on it - see the deliverables table at the top of this handout for all deadlines.*
 
 Parts A, B, and C are required and will be graded out of 10 points. Parts D and E are optional and 2 extra credit points are possible for a maximum grade of 12/10 points with extra credit. This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://docs.google.com/document/d/1GEx4MSiYd0UGvjGgqCrxySurAWu84bvs/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true) and [briefings](https://docs.google.com/document/d/1BEZg6W2ufm5WDVmzpqChwKZUcvrCrgCz/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true)). The grades will be weighted according to the table below for an overall lab grade out of 10 points. *Note that due to the individual nature of parts A and E, overall lab grades may differ across teammates.*
 
@@ -72,7 +73,7 @@ Submit your numeric answers along with your justifications to the gradescope ass
 
 ### Part B: Grading for simulation implementation (4 points) - **TEAMWORK**, *REQUIRED*
 
-Implement MCL in the simulator. Augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Ask a TA for a checkoff. Points will be assigned based on completion and the convergement of your solution in the 2D racecar simulation environment.
+Implement MCL in the simulator. Augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Points will be assigned based on completion and the convergement of your solution in the 2D racecar simulation environment.
 
 Before your briefing, you should seek out a TA to check off your solution during lab hours *before the day of briefings*. In the case that you do not finish this part during lab hours, please contact your point TA about scheduling another time for checkoff *with timely notice* or see if any TAs are free during offices hours. Still, the priority during office hours is to help students with their questions not do lab check offs. At least one member of your team needs to be present for the checkoff and be ready to answer questions about your implementation.
 
