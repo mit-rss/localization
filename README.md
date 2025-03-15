@@ -7,7 +7,7 @@
 | Briefing (8 min presentation + 3 min Q&A) | Monday, April 7th at 1:00PM EST |
 | Report (on team github pages website) | Friday, April 11th at 11:59PM EST |
 | Checkoff | Wednesday, April 9th at 11:59PM EST |
-| [Team Member Assessment](https://forms.gle/KokjGRzaC5xhsbv7A) | Wednesday, April 9th at 11:59PM EST |
+| [Team Member Assessment](https://forms.gle/5NEPu4AFvtLoBeeTA) | Wednesday, April 9th at 11:59PM EST |
 
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
