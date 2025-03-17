@@ -28,9 +28,12 @@ This lab consists of a number of modules, some required and some extra credit, s
 ## Submission and Grading
 
 This section describes the grading scheme for Lab 5, while the instructions to get started on the lab at available in the [instructions notebook](README.ipynb).
-The deliverables for this lab consist of five parts (two of which are optional) for a total of 10 points with 2 possible extra credit points. Parts A and E must be submitted individually, while the rest are teamwork. There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://forms.gle/5NEPu4AFvtLoBeeTA). *Note that part A is due sooner than the others, to encourage getting an early start on it - see the deliverables table at the top of this handout for all deadlines.*
+The deliverables for this lab consist of five parts (two of which are optional) for a total of 10 points with 2 possible extra credit points. Parts A and E must be submitted individually, while the rest are teamwork. Parts A, B, and C are required and will be graded out of 10 points. Parts D and E are optional and 2 extra credit points are possible for a maximum grade of 12/10 points with extra credit. *Note that part A is due sooner than the others, to encourage getting an early start on it - see the deliverables table at the top of this handout for all deadlines. In addition, due to the individual nature of parts A and D, overall lab grades may differ across teammates.*
 
-Parts A, B, and C are required and will be graded out of 10 points. Parts D and E are optional and 2 extra credit points are possible for a maximum grade of 12/10 points with extra credit. This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://docs.google.com/document/d/1GEx4MSiYd0UGvjGgqCrxySurAWu84bvs/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true) and [briefings](https://docs.google.com/document/d/1BEZg6W2ufm5WDVmzpqChwKZUcvrCrgCz/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true)). The grades will be weighted according to the table below for an overall lab grade out of 10 points. *Note that due to the individual nature of parts A and D, overall lab grades may differ across teammates.* 
+There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://forms.gle/5NEPu4AFvtLoBeeTA). The report will serve as a draft for your next lab, and you will be expected to revise and update sections in the future. 
+
+This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://canvas.mit.edu/courses/31106/rubrics/10760) and [briefings](https://canvas.mit.edu/courses/31106/rubrics/10759)). 
+The grades will be weighted according to the table below for an overall lab grade out of 10 points.  
 
 | Deliverable Grade | Weighting              |
 |---------------|----------------------------------------------------------------------------|
@@ -42,9 +45,7 @@ Parts A, B, and C are required and will be graded out of 10 points. Parts D and 
 -   **Part B - (Programming Assignment)** Develop and test the particle filter algorithm in 2D racecar simulation environment, upload solution to gradescope for autograder evaluation.
 -   **Part C - (Localization)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
 -   *Part D - (OPTIONAL: Extra Credit) Derive the Bayes' Filter presented in Lecture 10.*
--   *Part E - (OPTIONAL: Extra Credit) From localization to SLAM: coming soon!*
-
-  *Note that Part E will be released Friday, March 21st*
+-   *Part E - (OPTIONAL: Extra Credit) From localization to SLAM: coming soon! Note that Part E will be released Friday, March 21st*
 
 ### Before You Begin: Initial Setup
 
