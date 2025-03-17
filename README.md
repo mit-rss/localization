@@ -9,7 +9,7 @@
 | Checkoff | Wednesday, April 9th at 11:59PM EST |
 | [Team Member Assessment](https://forms.gle/5NEPu4AFvtLoBeeTA) | Wednesday, April 9th at 11:59PM EST |
 
-*Note that there will be a 2 point deduction (corresponding to a score of 1) if the team member assessment form is not submitted on time*
+*Note that we will assume the lowest score if the team member assessment form is not submitted on time*
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
 
