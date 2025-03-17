@@ -32,7 +32,7 @@ The deliverables for this lab consist of five parts (two of which are optional) 
 
 There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://forms.gle/5NEPu4AFvtLoBeeTA). The report will serve as a draft for your next lab, and you will be expected to revise and update sections in the future. 
 
-This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://canvas.mit.edu/courses/31106/rubrics/10760) and [briefings](https://canvas.mit.edu/courses/31106/rubrics/10759)). 
+This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://canvas.mit.edu/courses/31106/assignments/393140) and [briefings](https://canvas.mit.edu/courses/31106/assignments/385210)). 
 The grades will be weighted according to the table below for an overall lab grade out of 10 points.  
 
 | Deliverable Grade | Weighting              |
