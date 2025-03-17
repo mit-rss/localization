@@ -16,10 +16,10 @@ class SensorModel:
 
     def __init__(self, node):
         node.declare_parameter('map_topic', "default")
-        node.declare_parameter('num_beams_per_particle', "default")
-        node.declare_parameter('scan_theta_discretization', "default")
-        node.declare_parameter('scan_field_of_view', "default")
-        node.declare_parameter('lidar_scale_to_map_scale', 1)
+        node.declare_parameter('num_beams_per_particle', 1)
+        node.declare_parameter('scan_theta_discretization', 1.0)
+        node.declare_parameter('scan_field_of_view', 1.0)
+        node.declare_parameter('lidar_scale_to_map_scale', 1.0)
 
         self.map_topic = node.get_parameter('map_topic').get_parameter_value().string_value
         self.num_beams_per_particle = node.get_parameter('num_beams_per_particle').get_parameter_value().integer_value
