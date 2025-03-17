@@ -1,6 +1,6 @@
 | Deliverable | Due Date              |
 |---------------|----------------------------------------------------------------------------|
-| Part A individual submission (gradescope) | Friday, March 21nd at 11:59PM EST |
+| Part A individual submission (gradescope) | Friday, March 21st at 11:59PM EST |
 | Part B team submission (gradescope) | Monday, April 7th at 11:59PM EST |
 | OPTIONAL: Parts D and E | Monday, April 7th at 11:59PM EST |
 | Pushed code | Monday, April 7th at 11:59PM EST |
@@ -9,6 +9,7 @@
 | Checkoff | Wednesday, April 9th at 11:59PM EST |
 | [Team Member Assessment](https://forms.gle/5NEPu4AFvtLoBeeTA) | Wednesday, April 9th at 11:59PM EST |
 
+**There will be a 2 point deduction (corresponding to a score of 1 kudo) if the team member assessment form is not submitted on time
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
 
@@ -16,7 +17,9 @@
 
 ## Introduction
 
-Determining a robot’s orientation and position in a known environment, also known as localization, is a critical problem in the field of robotics. As is common in robotics, this seemingly simple problem is surprisingly difficult, and remains an active research area. In this lab, you will solve robotic localization by implementing Monte Carlo Localization (aka MCL or particle filter). This is a challenging lab and we'd recommend starting early and moving fast.
+Determining a robot’s orientation and position in a known environment, also known as localization, is a critical problem in the field of robotics. As is common in robotics, this seemingly simple problem is surprisingly difficult, and remains an active research area. In this lab, you will solve robotic localization by implementing Monte Carlo Localization (aka MCL or particle filter). 
+
+Localization is one major aspect of navigation; the next lab will serve as an extension of this one and cover the other major aspect, path planning. This is a challenging lab and we'd recommend starting early and moving fast, as your code/analysis for this lab will lay the groundwork for the next one.
 
 This lab consists of a number of modules, some required and some extra credit, some individual and some with your team - for details on submission, grading, and deliverables, see the next section.
 
@@ -27,7 +30,7 @@ This lab consists of a number of modules, some required and some extra credit, s
 This section describes the grading scheme for Lab 5, while the instructions to get started on the lab at available in the [instructions notebook](README.ipynb).
 The deliverables for this lab consist of five parts (two of which are optional) for a total of 10 points with 2 possible extra credit points. Parts A and E must be submitted individually, while the rest are teamwork. There will also be a report and briefing for this lab, and each teammate must submit the [team member assessment form](https://forms.gle/5NEPu4AFvtLoBeeTA). *Note that part A is due sooner than the others, to encourage getting an early start on it - see the deliverables table at the top of this handout for all deadlines.*
 
-Parts A, B, and C are required and will be graded out of 10 points. Parts D and E are optional and 2 extra credit points are possible for a maximum grade of 12/10 points with extra credit. This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://docs.google.com/document/d/1GEx4MSiYd0UGvjGgqCrxySurAWu84bvs/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true) and [briefings](https://docs.google.com/document/d/1BEZg6W2ufm5WDVmzpqChwKZUcvrCrgCz/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true)). The grades will be weighted according to the table below for an overall lab grade out of 10 points. *Note that due to the individual nature of parts A and E, overall lab grades may differ across teammates.*
+Parts A, B, and C are required and will be graded out of 10 points. Parts D and E are optional and 2 extra credit points are possible for a maximum grade of 12/10 points with extra credit. This grade out of 10 points is then combined with the report and briefing grades (each also out of 10 points - same rubrics used as in the previous labs for [reports](https://docs.google.com/document/d/1GEx4MSiYd0UGvjGgqCrxySurAWu84bvs/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true) and [briefings](https://docs.google.com/document/d/1BEZg6W2ufm5WDVmzpqChwKZUcvrCrgCz/edit?usp=sharing&ouid=118318728245025819045&rtpof=true&sd=true)). The grades will be weighted according to the table below for an overall lab grade out of 10 points. *Note that due to the individual nature of parts A and D, overall lab grades may differ across teammates.* 
 
 | Deliverable Grade | Weighting              |
 |---------------|----------------------------------------------------------------------------|
@@ -38,8 +41,10 @@ Parts A, B, and C are required and will be graded out of 10 points. Parts D and 
 -   **Part A - (Writing Assignment)** Understand the motion and sensor model.
 -   **Part B - (Programming Assignment)** Develop and test the particle filter algorithm in 2D racecar simulation environment, upload solution to gradescope for autograder evaluation.
 -   **Part C - (Localization)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
--   *Part D - (OPTIONAL: Extra Credit) From localization to SLAM: Coming Soon!*
--   *Part E - (OPTIONAL: Extra Credit) Derive the Bayes' Filter presented in Lecture 10.*
+-   *Part D - (OPTIONAL: Extra Credit) Derive the Bayes' Filter presented in Lecture 10.*
+-   *Part E - (OPTIONAL: Extra Credit) From localization to SLAM: coming soon!*
+
+  *Note that Part E will be released Friday, March 21st*
 
 ### Before You Begin: Initial Setup
 
@@ -63,20 +68,18 @@ Verify that the localization package can be built.
 
 ### Part A: Grading for writing assignment (3 points) - **INDIVIDUAL EFFORT**, *REQUIRED*
 
-Submit your answers **individually** to the writing assignment on gradescope, preferably LaTeXed. You must show work (derivations, formulas used, etc.) to receive full credit. You may collaborate on problems but you cannot simply share answers. You must write up your solutions independently. The 3 points of part A will be assigned based on the submitted written exercises:
+Submit your answers **individually** to the writing assignment on gradescope, preferably LaTeXed. You must show work (derivations, formulas used, etc.) to receive full credit. You may collaborate on problems but you cannot simply share answers - please note collaborators in your submission. You must write up your solutions independently. The 3 points of part A will be assigned based on the submitted written exercises:
 - 1 point for part (i) in question 1
 - 1 point for part (ii) in question 1
 - 1 point for question 2
 
-Submit your numeric answers along with your justifications to the gradescope assignment **Lab 5 Part A: Individual Submission**. You may check your numeric results by putting your answers in `/autograder/solutions_go_here.py` and uploading to the gradescope autograder **Lab 5 Part A: OPTIONAL**, but your grade will be based only on your explanations and answers submitted for the written portion. Just writing the final answer will not give total credit, even if correct. These questions will help you understand the algorithm before diving into coding.
+Submit your numeric answers along with your justifications to the gradescope assignment **Lab 5 Part A: Individual Submission**. You may check your numeric results by putting your answers in `/autograder/solutions_go_here.py` and uploading to the gradescope autograder **Lab 5 Part A: OPTIONAL**, but your grade will be based only on your explanations and answers submitted for the written portion. Just writing the final answer will not give total credit, even if correct. These questions will help you understand the algorithm before diving into coding. 
 
 ### Part B: Grading for simulation implementation (4 points) - **TEAMWORK**, *REQUIRED*
 
 Implement MCL in the simulator. Augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Points will be assigned based on completion and the convergement of your solution in the 2D racecar simulation environment.
 
-Before your briefing, you should seek out a TA to check off your solution during lab hours *before the day of briefings*. In the case that you do not finish this part during lab hours, please contact your point TA about scheduling another time for checkoff *with timely notice* or see if any TAs are free during offices hours. Still, the priority during office hours is to help students with their questions not do lab check offs. At least one member of your team needs to be present for the checkoff and be ready to answer questions about your implementation.
-
-You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package.
+You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package. We will expect to see your implementation in simulation during checkoffs. 
 
 ### [Running Unit Tests (updated 1 April 2024)](#running-unit-tests)
 
@@ -118,13 +121,13 @@ In your report and briefing, make sure to provide:
     - Laser scan data in the coordinate frame of your inferred position (it should align fairly well with the walls in the known map)
     - Any other byproducts of your algorithm which you find worthy of visualization
 
-### Part D: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT*
+### Part D: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
+
+Derive the form of the Bayes' Filter presented in Lecture 10. Submit as a typed PDF uploaded to the **Lab 5 Part D: OPTIONAL** gradescope assignment.
+
+### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT*
 
 Experiment with SLAM 
-
-### Part E: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
-
-Derive the form of the Bayes' Filter presented in Lecture 10. Submit as a typed PDF uploaded to the **Lab 5 Part E: OPTIONAL** gradescope assignment.
 
 ## Lab Modules
 
