@@ -40,8 +40,10 @@ class MotionModel:
         # Update each particle
         for particle in particles:
             # By calculating the rotation matrix of the particle movement.
-            rotation_matrix: np.ndarray = np.array([[np.cos(particle[2]), -np.sin(particle[2])],
-                                                    [np.sin(particle[2]), np.cos(particle[2])]])
+            rotation_matrix: np.ndarray = np.array([
+                [np.cos(particle[2]), -np.sin(particle[2])],
+                [np.sin(particle[2]), np.cos(particle[2])]]
+            )
             # Adding noise if the motion model is not deterministic.
             if self.deterministic:
                 noise: np.ndarray = np.zeros(self.std)
