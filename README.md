@@ -9,7 +9,9 @@
 | Checkoff | Wednesday, April 9th at 11:59PM EST |
 | [Team Member Assessment](https://forms.gle/5NEPu4AFvtLoBeeTA) | Wednesday, April 9th at 11:59PM EST |
 
-*Note that we will assume the lowest score if the team member assessment form is not submitted on time*
+*Note: We will assume the lowest score if the team member assessment form is not submitted on time*
+
+*Note: Late checkoffs will incur a percentage penalty to your participation grade. Missed checkoffs will result in -1% to your overall grade*
 
 **notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
 
