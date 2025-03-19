@@ -11,14 +11,14 @@ def answer_to_1i():
     """
     Return your answer to 1i in a python list, [x, y, theta]
     """
-    return [0, 0, 0]
+    return [0.223205, -0.0133975, 0.05235988]
 
 
 def answer_to_1ii():
     """
     Return your answer to 1ii in a python list, [x, y, theta]
     """
-    return [0, 0, 0]
+    return [3.123, 4.187, 1.0995574]
 
 
 def answer_to_2():
@@ -26,4 +26,4 @@ def answer_to_2():
     Return your answers to 2 in a python list for the values z=0,3,5,8,10
     Each value should be a float
     """
-    return [0, 0, 0, 0, 0]
+    return [0.032, 0.023, 0.0179, 0.0919066, 0.712]
