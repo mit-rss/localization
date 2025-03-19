@@ -1,3 +1,4 @@
+import numpy.typing as npt
 import numpy as np
 
 class MotionModel:
@@ -8,14 +9,14 @@ class MotionModel:
         # Do any precomputation for the motion
         # model here.
 
-        self.deterministic = deterministic
-        self.noise = noise
-        self.std = np.sqrt(noise)
-        self.node = node
+        self.deterministic: bool = deterministic
+        self.noise: float = noise
+        self.std: float = np.sqrt(noise)
+        self.node: str = node
 
         ####################################
 
-    def evaluate(self, particles: np.ndarray[np.ndarray], odometry: np.ndarray) -> np.ndarray:
+    def evaluate(self, particles: npt.NDArray, odometry: npt.NDArray) -> npt.NDArray:
         """
         Update the particles to reflect probable
         future states given the odometry data.
@@ -46,7 +47,7 @@ class MotionModel:
             )
             # Adding noise if the motion model is not deterministic.
             if self.deterministic:
-                noise: np.ndarray = np.zeros(self.std)
+                noise: np.ndarray = np.zeros(odometry.shape)
             else:
                 noise: np.ndarray = np.random.normal(0, self.noise, self.std)
             # And updating the particle.
