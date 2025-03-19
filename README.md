@@ -49,23 +49,7 @@ The grades will be weighted according to the table below for an overall lab grad
 
 ### Before You Begin: Initial Setup
 
-In order to build this package, we need to include a few dependencies that are not already included on the car. Note that this does **not** affect your work in the simulator.
-
-Please come find an instructor to do this for you, as this step requires an internet connection.
-
-
-============================= **Note for TAs** ============================= 
-
-Pull the updated docker image (`sebagarc/hardwareros2-production`), which contains:
-
-- the re-routed `racecar_simulator`
-- `SIM_WS` environment variable
-- two additional apt packages.
-
-Verify that the localization package can be built.
-
-=====================================================================
-
+N/A for now
 
 ### Part A: Grading for writing assignment (3 points) - **INDIVIDUAL EFFORT**, *REQUIRED*
 
