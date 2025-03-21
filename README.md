@@ -43,11 +43,11 @@ The grades will be weighted according to the table below for an overall lab grad
 | report grade (out of 10) | 40% |
 | grade for parts A-E (out of 10, up to 12/10 with extra credit) | 40% |
 
--   **Part A - (Writing Assignment)** Understand the motion and sensor model.
--   **Part B - (Programming Assignment)** Develop and test the particle filter algorithm in 2D racecar simulation environment.
--   **Part C - (Localization)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
--   *Part D - (OPTIONAL: Extra Credit) Derive the Bayes' Filter presented in Lecture 10.*
--   *Part E - (OPTIONAL: Extra Credit) From localization to SLAM: coming soon! Note that Part E will be released Friday, March 21st*
+-   **Part A - (Writing Assignment, 3pts)** Understand the motion and sensor model.
+-   **Part B - (Programming Assignment, 4pts)** Develop and test the particle filter algorithm in 2D racecar simulation environment.
+-   **Part C - (Localization, 3pts)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
+-   *Part D - (OPTIONAL: Extra Credit, 1pts) Derive the Bayes' Filter presented in Lecture 10.*
+-   *Part E - (OPTIONAL: Extra Credit, 1pts) From localization to SLAM: coming soon! Note that Part E will be released Friday, March 21st*
 
 ### Before You Begin: Initial Setup
 
