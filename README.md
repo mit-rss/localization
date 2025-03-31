@@ -114,7 +114,7 @@ Read this very brief introduction to RTABMAP SLAM at this [link](https://introla
 
 - Install RTABMAP (ROS2 Version) on the racecar docker.***
 - Find the rtabmap example launch file in the documentations and modify the topics to fit your current set up
-- Read the documentation on how to launch it.
+- Read the documentation on how to launch it, and launch the software with whichever configuration you desire, whether that be using the ZED camera, depth camera, LIDAR, visual odometry, racecar wheel odometry (topic = /vesc/odom, frame = odom)
 - Open up RVIZ (on the racecar noVNC server) and select the corresponding topics to visualize the map construction
 - Launch the example, and visualize the topics on RViz
 - Read the documentation and modify the launch file to publish a 2D occupancy grid (map) as the mapping is running
