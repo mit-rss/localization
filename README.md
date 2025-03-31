@@ -108,7 +108,7 @@ In your report and briefing, make sure to provide:
 
 Derive the form of the Bayes' Filter presented in Lecture 10. Submit as a typed PDF uploaded to the **Lab 5 Part D: OPTIONAL** gradescope assignment.
 
-### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT*
+### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT* PLEASE WORK ON THIS **AFTER** YOU FINISH HARDWARE LOCALIZATION
 
 Read this very brief introduction to RTABMAP SLAM at this [link](https://introlab.github.io/rtabmap/) and then follow these instructions:
 
