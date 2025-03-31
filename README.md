@@ -110,10 +110,10 @@ Derive the form of the Bayes' Filter presented in Lecture 10. Submit as a typed 
 
 ### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT*
 
-Read this very brief introduction to RTABMAP SLAM at this [link](README.SLAM) and then follow these instructions:
+Read this very brief introduction to RTABMAP SLAM at this [link](https://introlab.github.io/rtabmap/) and then follow these instructions:
 
 - Install RTABMAP (ROS2 Version) on the racecar docker.***
-- Find the rtabmap example launch file for a setup with a ZED camera
+- Find the rtabmap example launch file in the documentations and modify the topics to fit your current set up
 - Read the documentation on how to launch it.
 - Open up RVIZ (on the racecar noVNC server) and select the corresponding topics to visualize the map construction
 - Launch the example, and visualize the topics on RViz
@@ -127,7 +127,11 @@ ros2 run nav2_map_server map_saver_cli -f my_map --ros-args -r /map:=/rtabmap/gr
 
 
 
+
 ***In order to not have to keep redownloading, look into docker container commits, or reach out to a TA for help on how to do this!
+
+#### Note: You may have "odometry" lost issues, if so, move the car a bit slower so it does not lose track of itself. 
+
 
 ## Lab Modules
 
