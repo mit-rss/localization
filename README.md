@@ -49,6 +49,24 @@ The grades will be weighted according to the table below for an overall lab grad
 -   *Part D - (OPTIONAL: Extra Credit, 1pts) Derive the Bayes' Filter presented in Lecture 10.*
 -   *Part E - (OPTIONAL: Extra Credit, 1pts) From localization to SLAM: coming soon! Note that Part E will be released Friday, March 21st*
 
+### Initial Setup
+
+In order to build this package, we need to include a few dependencies that are not already included on the car. Note that this does **not** affect your work in the simulator.
+
+Please come find an instructor to do this for you, as this step requires an internet connection.
+ 
+ ============================= **Note for TAs** ============================= 
+ 
+ Pull the updated docker image (`sebagarc/hardwareros2-production`), which contains:
+ 
+ - the re-routed `racecar_simulator`
+ - `SIM_WS` environment variable
+ - two additional apt packages.
+ 
+ Verify that the localization package can be built.
+ 
+ =====================================================================
+
 ### Part A: Grading for writing assignment (3 points) - **INDIVIDUAL EFFORT**, *REQUIRED*
 
 Submit your answers **individually** to the writing assignment on gradescope, preferably LaTeXed. You must show work (derivations, formulas used, etc.) to receive full credit. You may collaborate on problems but you cannot simply share answers - please note collaborators in your submission. You must write up your solutions independently. The 3 points of part A will be assigned based on the submitted written exercises:
