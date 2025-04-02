@@ -57,7 +57,7 @@ Please come find an instructor to do this for you, as this step requires an inte
  
  ============================= **Note for TAs** ============================= 
  
- Pull the updated docker image (`sebagarc/hardwareros2-production`), which contains:
+ Pull the updated docker image (`sebagarc/racecar-real`), which contains:
  
  - the re-routed `racecar_simulator`
  - `SIM_WS` environment variable
