@@ -1,11 +1,11 @@
 | Deliverable | Due Date              |
 |---------------|----------------------------------------------------------------------------|
-| Part A individual submission (gradescope) | Friday, March 21st at 11:59PM EST |
-| Part B team submission (gradescope) | Monday, April 7th at 11:59PM EST |
-| OPTIONAL: Parts D and E | Monday, April 7th at 11:59PM EST |
-| Pushed code | Monday, April 7th at 11:59PM EST |
-| Briefing (8 min presentation + 3 min Q&A) | Monday, April 7th at 1:00PM EST |
-| Report (on team github pages website) | Friday, April 11th at 11:59PM EST |
+| Part A individual submission (gradescope) | Friday, March 20st at 11:59PM EST |
+| Part B team submission (gradescope) | Monday, April 6th at 11:59PM EST |
+| OPTIONAL: Parts D and E | Monday, April 6th at 11:59PM EST |
+| Pushed code | Monday, April 6th at 11:59PM EST |
+| Briefing (8 min presentation + 3 min Q&A) | Monday, April 6th at 1:00PM EST |
+| Report (on team github pages website) | Friday, April 10th at 11:59PM EST |
 | Checkoff | Wednesday, April 9th at 7:00PM EST |
 | [Team Member Assessment](https://forms.gle/5NEPu4AFvtLoBeeTA) | Wednesday, April 9th at 11:59PM EST |
 
