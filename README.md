@@ -6,8 +6,8 @@
 | Pushed code | Monday, April 6th at 11:59PM EST |
 | Briefing (8 min presentation + 3 min Q&A) | Monday, April 6th at 1:00PM EST |
 | Report (on team github pages website) | Friday, April 10th at 11:59PM EST |
-| Checkoff | Wednesday, April 9th at 7:00PM EST |
-| [Team Member Assessment](https://forms.gle/5NEPu4AFvtLoBeeTA) | Wednesday, April 9th at 11:59PM EST |
+| Checkoff | Wednesday, April 8th at 7:00PM EST |
+| [Team Member Assessment](https://forms.gle/5NEPu4AFvtLoBeeTA) | Wednesday, April 8th at 11:59PM EST |
 
 *Note: We will assume the lowest score if the team member assessment form is not submitted on time*
 
