@@ -110,6 +110,26 @@ In your report and briefing, make sure to provide:
     - The known map
     - Laser scan data in the coordinate frame of your inferred position (it should align fairly well with the walls in the known map)
     - Any other byproducts of your algorithm which you find worthy of visualization.
+ 
+### Part B & C: Tips and Tricks
+
+As the algorithm must run in realtime with a large number of particles, **an efficient implementation is a requirement for success**. There are a few tricks you can use, primarily:
+ - Downsample your laser scan: you lidar has > 1000 beams but many of them are redundant. Downsample to ~100 for good performance (you could even try lower if you want). This will make the probability distribution over your state space less "peaked" and increase the number of particles you can maintain in real time (less ray casting).
+ - You can also try to "squash" your sensor model output probability by raising it to a power of less than one (1/3 for example) to make your distribution even less peaked. If you are confused by this paragraph, look at [4,5]
+ - Don't go crazy with particles: start with ~200. You can probably get your code running with thousands of particles but it will take some well crafted code to run in real time.
+ - Remember that your sensor model and motion model don't need to run at the same rate! The motion model is probably much faster and over short periods of time it will accurately track the motion of the car. The sensor model can correct the dift of the motion model at a slower rate if necessary.
+ - Use ```ros2 topic hz``` to check the rate at which you are publishing the expected transformation from the map to the car's position. It should be greater than 20hz for realtime performance.
+ - **Use numpy arrays for absolutely everything**
+  - Use numpy functions on numpy arrays to do any computations.\n",
+  - avoid Python for loops like the plague\n",
+  - [Slice indexing is your (best) friend.](https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html).
+ - Use the smallest number of operations required to perform your arithmetic, avoid unnecessary memory allocations, and avoid excessive function calls
+ - Cache and reuse important numpy arrays by setting them to the right size during initialization of your particle filter as “self” variables.
+ - Identify your critical code paths, and keep them clean. Conversely, don’t worry too much about code that is called infrequently.
+ - Don’t publish visualization messages unless someone is subscribed to those topics, this can cause your system to be slower.
+ - Use a profiler to identify good candidates for optimization, but also, try a teammate's computer, some computers are just slower.
+ - On the real car, make sure your Jetson is running in Max-N mode for best performance
+ - If you want an even faster (albeit more complicated to interface with) ray tracer check out [range_libc](https://github.com/kctess5/range_libc). This was written by RSS TA Corey Walsh and it is heavily optimized.
 
 ### Part D: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
 
