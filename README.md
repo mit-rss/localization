@@ -142,9 +142,7 @@ Running this part requires an installation of the ros rtabmap package (installed
 **Assignment** Goal: To earn the points for this part, we would like to see 3 things. 1) A video recording of your localization module from part C running side by side with a video of the car navigating in real life. 2) We would love to see a screen recording of movement and mapping occurring from the foxglove visualization platform and a loop closure optimization happen (does not have to be real-time). 3) A brief write-up of how a visual SLAM localization method differs from your Monte Carlo Localization. You can try using the non-mapping mode to see it in action but it's not necessary.  
 
 
-# Step 1: Getting familiar with the Foxglove viewer (it's like Rviz but better and has nicer Colors)
-
-
+#### Step 1: Getting familiar with the Foxglove viewer (it's like Rviz but better and has nicer Colors)
 
 The reason we are choosing not to use RViz for this part, is because with our current setup, RViz is rendering on the car which consumes alot of resources, and we want to dedicate as much of our resources on the racecar's computer to the SLAM package and also the ZED camera.
 
@@ -153,7 +151,7 @@ TBW (To be written)
  
 
 Perfect, now that you are familiar with this visualization software, let's move on 
-# Step 2: Running SLAM and saving a map!
+#### Step 2: Running SLAM and saving a map!
 Checkout what RTABMAP SLAM is all about at this [link](https://introlab.github.io/rtabmap/) and then follow these instructions:
 
 TBD (To be done... soon)
@@ -169,8 +167,7 @@ TBD (To be done... soon)
 ros2 run nav2_map_server map_saver_cli -f my_map --ros-args -r /map:=/rtabmap/grid_map
 ```
 
-
-# Step 3: Part C...2... (Code Geass reference?)
+#### Step 3: Part C...2... (Code Geass reference?)
 
 - Now modify the params files of racecar simulator and launch it with the map you just created!
 - Now film a video demonstrating your localization solution (for the hardware) on your newly created map alongside a video of the robot moving in the space you mapped. 
