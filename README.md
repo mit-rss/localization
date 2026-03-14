@@ -47,25 +47,14 @@ The grades will be weighted according to the table below for an overall lab grad
 -   **Part B - (Programming Assignment, 4pts)** Develop and test the particle filter algorithm in 2D racecar simulation environment.
 -   **Part C - (Localization, 3pts)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
 -   *Part D - (OPTIONAL: Extra Credit, 1pts) Derive the Bayes' Filter presented in Lecture 10.*
--   *Part E - (OPTIONAL: Extra Credit, 1pts) From localization to SLAM: coming soon! Note that Part E will be released Friday, March 21st*
+-   *Part E - (OPTIONAL: Extra Credit, 1pts) From localization to SLAM: Exploring SLAM and Visualizing with Foxglove!
 
 ### Initial Setup
 
 In order to build this package, we need to include a few dependencies that are not already included on the car. Note that this does **not** affect your work in the simulator.
 
-Please come find an instructor to do this for you, as this step requires an internet connection.
+Please pull the new docker image using the command ```sudo docker pull staffmitrss/racecar2026```.
  
- ============================= **Note for TAs** ============================= 
- 
- Pull the updated docker image (`sebagarc/racecar-real`), which contains:
- 
- - the re-routed `racecar_simulator`
- - `SIM_WS` environment variable
- - two additional apt packages.
- 
- Verify that the localization package can be built.
- 
- =====================================================================
 
 ### Part A: Grading for writing assignment (3 points) - **INDIVIDUAL EFFORT**, *REQUIRED*
 
@@ -82,7 +71,7 @@ Implement MCL in the simulator. Augment the simulated odometry data with various
 
 You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package. We will expect to see your implementation in simulation during checkoffs. 
 
-### [Running Unit Tests (updated 1 April 2024)](#running-unit-tests)
+### [Running Unit Tests](#running-unit-tests)
 
 We have provided a few unit tests for you to test your sensor model and motion model. To run these tests, do:
 
@@ -120,37 +109,56 @@ In your report and briefing, make sure to provide:
     - Visualization of the particle distribution
     - The known map
     - Laser scan data in the coordinate frame of your inferred position (it should align fairly well with the walls in the known map)
-    - Any other byproducts of your algorithm which you find worthy of visualization
+    - Any other byproducts of your algorithm which you find worthy of visualization.
 
 ### Part D: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
 
 Derive the form of the Bayes' Filter presented in Lecture 10. Submit as a typed PDF uploaded to the **Lab 5 Part D: OPTIONAL** gradescope assignment.
 
-### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT* PLEASE WORK ON THIS **AFTER** YOU FINISH HARDWARE LOCALIZATION
+### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT* (This part is very cool so try to have everyone onboard with what's happening here.) 
 
-Read this very brief introduction to RTABMAP SLAM at this [link](https://introlab.github.io/rtabmap/) and then follow these instructions:
+Running this part requires an installation of the ros rtabmap package (installed with apt install ros-humble-rtabmap-ros) and the foxglove bridge package (apt install ros-humble-foxglove-bridge). Luckily we have already done this for you, but keep this in mind in case you ever want to deploy this on a different machine or robot. 
 
-- Install RTABMAP (ROS2 Version) on the racecar docker.***
-- Find the rtabmap example launch file in the documentations and modify the topics to fit your current set up
-- Read the documentation on how to launch it, and launch the software with whichever configuration you desire, whether that be using the ZED camera, depth camera, LIDAR, visual odometry, racecar wheel odometry (topic = /vesc/odom, frame = odom)
-- Open up RVIZ (on the racecar noVNC server) and select the corresponding topics to visualize the map construction
-- Launch the example, and visualize the topics on RViz
-- Read the documentation and modify the launch file to publish a 2D occupancy grid (map) as the mapping is running
-- Create a map of somewhere available to you (not stata basement or building 31), and save it using the following command or modified version of this command:
+**Assignment** Goal: To earn the points for this part, we would like to see 3 things. 1) A video recording of your localization module from part C running side by side with a video of the car navigating in real life. 2) We would love to see a screen recording of movement and mapping occurring from the foxglove visualization platform and a loop closure optimization happen (does not have to be real-time). 3) A brief write-up of how a visual SLAM localization method differs from your Monte Carlo Localization. You can try using the non-mapping mode to see it in action but it's not necessary.  
+
+
+# Step 1: Getting familiar with the Foxglove viewer (it's like Rviz but better and has nicer Colors)
+
+
+
+The reason we are choosing not to use RViz for this part, is because with our current setup, RViz is rendering on the car which consumes alot of resources, and we want to dedicate as much of our resources on the racecar's computer to the SLAM package and also the ZED camera.
+
+
+TBW (To be written)
+ 
+
+Perfect, now that you are familiar with this visualization software, let's move on 
+# Step 2: Running SLAM and saving a map!
+Checkout what RTABMAP SLAM is all about at this [link](https://introlab.github.io/rtabmap/) and then follow these instructions:
+
+TBD (To be done... soon)
+- Enable saved layout or manually make layout for mapping visualization purposes on Foxglove
+- You will need to have these 3 processes running before you begin: ZED camera, teleop, and the foxglove bridge. 
+- Now you are ready to start
+- Run the provided launch file. Feel free to experiment with parameters (if you can find and work through the documentation LOL good luck) hint: source code >:) or claude code  >:(
+- Once you feel your map is complete (loop closures done, looks complete with no extreme distortions), save your map with the provided command.
+    - For this part, don't close out anything until you save your map this way. Your map and data you collected with slam will still live on in a .db file but for our purposes, we can quickly save the 2D map that you see on your screen. 
+- Now you can view it as a png, and it also comes with a yaml file, note where you saved these to. 
+
 ```bash
 ros2 run nav2_map_server map_saver_cli -f my_map --ros-args -r /map:=/rtabmap/grid_map
 ```
-#### Note: Replace /rtabmap/grid_map with the actual topic name of the map being published, if it differs
-- Now load that map inside the racecar_simulator/map_server on the racecar, and film a video demonstrating your localization solution (for the hardware) on your newly created map!
 
 
+# Step 3: Part C...2... (Code Geass reference?)
+
+- Now modify the params files of racecar simulator and launch it with the map you just created!
+- Now film a video demonstrating your localization solution (for the hardware) on your newly created map alongside a video of the robot moving in the space you mapped. 
+- Submit this on gradescope
 
 
-***In order to not have to keep redownloading, look into docker container commits, or reach out to a TA for help on how to do this!
-
-#### Note: You may have "odometry" lost issues, if so, move the car a bit slower so it does not lose track of itself. 
 
 
 ## Lab Modules
 
-The instructions to get started with Lab 5 are available in the [instructions notebook](README.ipynb).
+The instructions to get started with Lab 5 Parts A-C are available in the [instructions notebook](README.ipynb).
