@@ -120,9 +120,9 @@ As the algorithm must run in realtime with a large number of particles, **an eff
  - Remember that your sensor model and motion model don't need to run at the same rate! The motion model is probably much faster and over short periods of time it will accurately track the motion of the car. The sensor model can correct the dift of the motion model at a slower rate if necessary.
  - Use ```ros2 topic hz``` to check the rate at which you are publishing the expected transformation from the map to the car's position. It should be greater than 20hz for realtime performance.
  - **Use numpy arrays for absolutely everything**
-  - Use numpy functions on numpy arrays to do any computations.\n",
-  - avoid Python for loops like the plague\n",
-  - [Slice indexing is your (best) friend.](https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html).
+    - Use numpy functions on numpy arrays to do any computations.
+    - Avoid Python for loops like the plague.
+    - [Slice indexing is your (best) friend.](https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html)
  - Use the smallest number of operations required to perform your arithmetic, avoid unnecessary memory allocations, and avoid excessive function calls
  - Cache and reuse important numpy arrays by setting them to the right size during initialization of your particle filter as “self” variables.
  - Identify your critical code paths, and keep them clean. Conversely, don’t worry too much about code that is called infrequently.
