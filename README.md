@@ -58,7 +58,7 @@ Please pull the new docker image using the command ```sudo docker pull staffmitr
 
 ### Part A: Grading for writing assignment (3 points) - **INDIVIDUAL EFFORT**, *REQUIRED*
 
-Submit your answers **individually** to the writing assignment on gradescope, preferably LaTeXed. You must show work (derivations, formulas used, etc.) to receive full credit. You may collaborate on problems but you cannot simply share answers - please note collaborators in your submission. You must write up your solutions independently. The 3 points of part A will be assigned based on the submitted written exercises:
+Part A requires you to answer several questions with written answers. The questions are listed in the [instructions notebook](README.ipynb). Submit your answers **individually** to the writing assignment on gradescope, preferably LaTeXed. You must show work (derivations, formulas used, etc.) to receive full credit. You may collaborate on problems but you cannot simply share answers - please note collaborators in your submission. You must write up your solutions independently. The 3 points of part A will be assigned based on the submitted written exercises:
 - 1 point for part (i) in question 1
 - 1 point for part (ii) in question 1
 - 1 point for question 2
@@ -67,7 +67,7 @@ Submit your numeric answers along with your justifications to the gradescope ass
 
 ### Part B: Grading for simulation implementation (4 points) - **TEAMWORK**, *REQUIRED*
 
-Implement MCL in the simulator. Augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Points will be assigned based on completion and the convergement of your solution in the 2D racecar simulation environment.
+Implement MCL in the simulator. Remember to read the detailed description in [instructions notebook](README.ipynb). We want you to augment the simulated odometry data with various types of noise and compare how your solution does compared to the ground truth odometry. Points will be assigned based on completion and the convergement of your solution in the 2D racecar simulation environment.
 
 You should submit your implementation to the **Lab 5 Part B: Localization in Simulation** assignment on gradescope as a zip of your localization package. We will expect to see your implementation in simulation during checkoffs. 
 
@@ -100,9 +100,12 @@ A couple notes about the tests, should you wish to use them:
 
 For this part you will need to adapt your MCL implementation from part B to work in your car, and conduct experimental analysis of your algorithm's performance for your report and briefing. See part C of the [instructions notebook](README.ipynb) for more details on how to adapt your code to run in your car.
 
+You are almost certainly going to need different parameters for your particle filter for running on the real robot in the real world, such as the number of samples and the noise coefficients on your motion and sensor models. To tune these parameters, you should have a small number of bags in different conditions, and you should be able to replay the bags with MCL running with different parameters, and measure the performance in terms of metrics that you choose. You should also carefully measure the time it takes for each update of your MCL implementation. If each update seems to be taking a very long time, you probably need to look carefully at your implementation. Also be sure to read the "Tips and tricks" section below. If your code uses several `for` loops, you will want to change that. 
+
 In your report and briefing, make sure to provide:
 - Numerical evidence that your algorithm is working in the form of charts / data
-    - Convergence rates, cross track error, etc
+    - Specific metrics such as convergence rates, cross track error, etc, especially as a function of different parameter choices
+    - In your lab report, please report on the runtime of your filter updates, especially as you change the number of samples and number of lidar rays you process 
     - Show how the robust the simulator is in the presence of **noisy odometry**, using **ground truth odometry** for comparison.
 - An [illustrative video](https://www.youtube.com/watch?v=-c_0hSjgLYw&t=6s) of your particle filter working, overlaying
     - Visualization of inferred position
@@ -142,7 +145,7 @@ Running this part requires an installation of the ros rtabmap package (installed
 **Assignment** Goal: To earn the points for this part, we would like to see 3 things. 1) A video recording of your localization module from part C running side by side with a video of the car navigating in real life. 2) We would love to see a screen recording of movement and mapping occurring from the foxglove visualization platform and a loop closure optimization happen (does not have to be real-time). 3) A brief write-up of how a visual SLAM localization method differs from your Monte Carlo Localization. You can try using the non-mapping mode to see it in action but it's not necessary.  
 
 
-#### Step 1: Getting familiar with the Foxglove viewer (it's like Rviz but better and has nicer Colors)
+#### Step 1: Getting familiar with the Foxglove viewer (it's like Rviz but better and has nicer colors)
 
 The reason we are choosing not to use RViz for this part, is because with our current setup, RViz is rendering on the car which consumes alot of resources, and we want to dedicate as much of our resources on the racecar's computer to the SLAM package and also the ZED camera.
 
