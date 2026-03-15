@@ -96,7 +96,7 @@ A couple notes about the tests, should you wish to use them:
 
 * Please note that for short, the first column may be `nan` if you are trying to normalize the columns. As `np.nan != np.nan`, we followed the convention of `0/0 = 0`. This will not be an issue in practice, since you won't be having `alpha_short = 1`.
 
-### Part C: Grading for localization in ROBOT (3 points) - **TEAMWORK**, *REQUIRED*
+### Part C: Grading for localization in real world (3 points) - **TEAMWORK**, *REQUIRED*
 
 For this part you will need to adapt your MCL implementation from part B to work in your car, and conduct experimental analysis of your algorithm's performance for your report and briefing. See part C of the [instructions notebook](README.ipynb) for more details on how to adapt your code to run in your car.
 
