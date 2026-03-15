@@ -120,7 +120,7 @@ As the algorithm must run in realtime with a large number of particles, **an eff
  - **Use numpy arrays for absolutely everything**
     - Use numpy functions on numpy arrays to do any computations.
     - Avoid Python for loops like the plague.
-    - [Slice indexing is your (best) friend.](https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html)
+    - [Slice indexing is your (best) friend.](https://numpy.org/doc/1.20/reference/arrays.indexing.html)
     - Cache and reuse important numpy arrays by setting them to the right size during initialization of your particle filter as “self” variables.
  - **Downsample your laser scan**: your lidar has > 1000 beams but many of them are redundant. Downsample to ~100 for good performance (you can try lower as well). This will make the probability distribution over your state space less "peaked" and increase the number of particles you can maintain in real time.
  - **"Squash" your sensor model output probability** by raising it to a power of less than one (1/3 for example) to make your distribution even less peaked. If you are confused by this paragraph, look at [4,5]
