@@ -19,7 +19,7 @@
 
 ## Introduction
 
-Determining a robot’s orientation and position in a known environment, also known as localization, is a critical problem in the field of robotics. As is common in robotics, this seemingly simple problem is surprisingly difficult, and remains an active research area. In this lab, you will solve robotic localization by implementing Monte Carlo Localization (aka MCL or particle filter). 
+Determining a robot's orientation and position in a known environment, also known as localization, is a critical problem in the field of robotics. As is common in robotics, this seemingly simple problem is surprisingly difficult, and remains an active research area. In this lab, you will solve robotic localization by implementing Monte Carlo Localization (aka MCL or particle filter). 
 
 Localization is one major aspect of navigation; the next lab will serve as an extension of this one and cover the other major aspect, path planning. This is a challenging lab and we'd recommend starting early and moving fast, as your code/analysis for this lab will lay the groundwork for the next one.
 
@@ -43,18 +43,17 @@ The grades will be weighted according to the table below for an overall lab grad
 | report grade (out of 10) | 40% |
 | grade for parts A-E (out of 10, up to 12/10 with extra credit) | 40% |
 
--   **Part A - (Writing Assignment, 3pts)** Understand the motion and sensor model.
--   **Part B - (Programming Assignment, 4pts)** Develop and test the particle filter algorithm in 2D racecar simulation environment.
--   **Part C - (Localization, 3pts)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
--   *Part D - (OPTIONAL: Extra Credit, 1pts) Derive the Bayes' Filter presented in Lecture 10.*
--   *Part E - (OPTIONAL: Extra Credit, 1pts) From localization to SLAM: Exploring SLAM and Visualizing with Foxglove!
+- **Part A - (Writing Assignment, 3pts)** Understand the motion and sensor model.
+- **Part B - (Programming Assignment, 4pts)** Develop and test the particle filter algorithm in 2D racecar simulation environment.
+- **Part C - (Localization, 3pts)** Adapt your solution from part B to work in your car and conduct experimental analysis for your report and briefing.
+- *Part D - (OPTIONAL: Extra Credit, 1pts) Derive the Bayes' Filter presented in Lecture 10.*
+- *Part E - (OPTIONAL: Extra Credit, 1pts) From localization to SLAM: Exploring SLAM and Visualizing with Foxglove!
 
 ### Initial Setup
 
 In order to build this package, we need to include a few dependencies that are not already included on the car. Note that this does **not** affect your work in the simulator.
 
-Please pull the new docker image using the command ```sudo docker pull staffmitrss/racecar2026```.
- 
+Please pull the new docker image using the command `sudo docker pull staffmitrss/racecar2026`.
 
 ### Part A: Grading for writing assignment (3 points) - **INDIVIDUAL EFFORT**, *REQUIRED*
 
@@ -90,11 +89,11 @@ If your code errors out or fails, the console will indicate that. Otherwise, you
 
 A couple notes about the tests, should you wish to use them:
 
-* In the motion model test, we assume a deterministic motion model to keep things simple. For this reason, please have your motion model behavior be controlled by a `self.deterministic` field. If `self.deterministic = True`, the motion model `evaluate` should not add noise to the odometry. If `self.deterministic = False`, the motion model should add noise to the odometry (needed for localization).
+- In the motion model test, we assume a deterministic motion model to keep things simple. For this reason, please have your motion model behavior be controlled by a `self.deterministic` field. If `self.deterministic = True`, the motion model `evaluate` should not add noise to the odometry. If `self.deterministic = False`, the motion model should add noise to the odometry (needed for localization).
 
-* You may notice that the sensor_model precompute test is difficult to debug. To make this process easier, we have included a file `assets/debug_precomputed_table.pkl` containing precomputed tables you should be getting if `alpha = 1` for each of `alpha_hit`, `alpha_rand`, `alpha_max`, `alpha_short`. For example, if you load the dict into the variable `results_each`, `results_each['hit']` gives the table for `alpha_hit = 1` and `alpha_rand = alpha_short = alpha_max = 0`. 
+- You may notice that the sensor_model precompute test is difficult to debug. To make this process easier, we have included a file `assets/debug_precomputed_table.pkl` containing precomputed tables you should be getting if `alpha = 1` for each of `alpha_hit`, `alpha_rand`, `alpha_max`, `alpha_short`. For example, if you load the dict into the variable `results_each`, `results_each['hit']` gives the table for `alpha_hit = 1` and `alpha_rand = alpha_short = alpha_max = 0`. 
 
-* Please note that for short, the first column may be `nan` if you are trying to normalize the columns. As `np.nan != np.nan`, we followed the convention of `0/0 = 0`. This will not be an issue in practice, since you won't be having `alpha_short = 1`.
+- Please note that for short, the first column may be `nan` if you are trying to normalize the columns. As `np.nan != np.nan`, we followed the convention of `0/0 = 0`. This will not be an issue in practice, since you won't be having `alpha_short = 1`.
 
 ### Part C: Grading for localization in real world (3 points) - **TEAMWORK**, *REQUIRED*
 
@@ -112,27 +111,26 @@ In your report and briefing, make sure to provide:
     - Visualization of the particle distribution
     - The known map
     - Laser scan data in the coordinate frame of your inferred position (it should align fairly well with the walls in the known map)
-    - Any other byproducts of your algorithm which you find worthy of visualization.
+    - Any other byproducts of your algorithm which you find worthy of visualization
  
 ### Part B & C: Tips and Tricks
 
 As the algorithm must run in realtime with a large number of particles, **an efficient implementation is a requirement for success**. There are a few tricks you can use, primarily:
- - **Use numpy arrays for absolutely everything**
+- **Use numpy arrays for absolutely everything**
     - Use numpy functions on numpy arrays to do any computations.
     - Avoid Python for loops like the plague.
     - [Slice indexing is your (best) friend.](https://numpy.org/doc/1.20/reference/arrays.indexing.html)
-    - Cache and reuse important numpy arrays by setting them to the right size during initialization of your particle filter as “self” variables.
- - **Downsample your laser scan**: your lidar has > 1000 beams but many of them are redundant. Downsample to ~100 for good performance (you can try lower as well). This will make the probability distribution over your state space less "peaked" and increase the number of particles you can maintain in real time.
- - **"Squash" your sensor model output probability** by raising it to a power of less than one (1/3 for example) to make your distribution even less peaked. If you are confused by this paragraph, look at [4,5]
- - **Start with ~200 particles**; don't go crazy with particles. You can probably get your code running with thousands of particles but it will take some well crafted code to run in real time.
- - Your sensor model and motion model don't need to run at the same rate! The motion model is probably much faster and over short periods of time it will accurately track the motion of the car. The sensor model can correct the dift of the motion model at a slower rate if necessary.
- - Use ```ros2 topic hz``` to check the rate at which you are publishing the expected transformation from the map to the car's position. It should be greater than 20hz for realtime performance.
- - Use the smallest number of operations required to perform your arithmetic, avoid unnecessary memory allocations, and avoid excessive function calls
- - Identify your critical code paths, and keep them clean. Conversely, don’t worry too much about code that is called infrequently.
- - Don’t publish visualization messages unless someone is subscribed to those topics, this can cause your system to be slower.
- - Use a profiler to identify good candidates for optimization, but also, try a teammate's computer, some computers are just slower.
- - On the real car, make sure your Jetson is running in Max-N mode for best performance
- - If you want an even faster (albeit more complicated to interface with) ray tracer check out [range_libc](https://github.com/kctess5/range_libc). This was written by RSS TA Corey Walsh and it is heavily optimized.
+    - Cache and reuse important numpy arrays by setting them to the right size during initialization of your particle filter as `self` variables.
+- **Downsample your laser scan**: your lidar has > 1000 beams but many of them are redundant. Downsample to ~100 for good performance (you can try lower as well). This will make the probability distribution over your state space less "peaked" and increase the number of particles you can maintain in real time.
+- **Start with ~200 particles**; don't go crazy with particles. You can probably get your code running with thousands of particles but it will take some well crafted code to run in real time.
+- You may find it helpful to "squash" your sensor model output probability by raising it to a power of less than one (1/3 for example) to make your distribution even less peaked. For more details, look at [4,5].
+- Your sensor model and motion model don't need to run at the same rate! The motion model is probably much faster and over short periods of time it will accurately track the motion of the car. The sensor model can correct the drift of the motion model at a slower rate if necessary.
+- Use `ros2 topic hz` to check the rate at which you are publishing the expected transformation from the map to the car's position. It should be greater than 20hz for realtime performance.
+- Use the smallest number of operations required to perform your arithmetic, avoid unnecessary memory allocations, and avoid excessive function calls.
+- Identify your critical code paths, and keep them clean. Conversely, don't worry too much about code that is called infrequently.
+- Publishing visualization messages may cause your system to be slower. It is recommended to set a ROS parameter to enable/disable visualizations.
+- On the real car, make sure your Jetson is running in Max-N mode for best performance
+- If you want an even faster (albeit more complicated to interface with) ray tracer check out [range_libc](https://github.com/kctess5/range_libc). This was written by RSS TA Corey Walsh and it is heavily optimized.
 
 ### Part D: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
 
@@ -142,8 +140,6 @@ Derive the form of the Bayes' Filter presented in Lecture 10. Submit as a typed 
 
 Use the provided SLAM package to create your own map of an area of your choosing, and then show your localization from Part C running in this area, for at least 10 seconds, driving at least 10 euclidean meters (loops encouraged). Specifically, we would like to see two videos side by side of the browser visualization and real-life car moving through the area you chose. Please choose a large enough room or area that is driveable, has plenty of obstacles/features/landmarks, and does not change too often. Foot traffic or other non-static objects may cause unwanted artifacts in your map. Additionally, we would like to hear a brief explanation during your checkoff on the differences between MCL (Mone Carlo Localization), and graph-based localization that is used in visual slam algorithms. 
 
-
-
 ## Lab Modules
 
-The instructions to get started with Lab 5 Parts A-C are available in the [instructions notebook](README.ipynb).
+The instructions to get started with Lab 5 are available in the [instructions notebook](README.ipynb).
