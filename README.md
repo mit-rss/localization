@@ -138,44 +138,9 @@ As the algorithm must run in realtime with a large number of particles, **an eff
 
 Derive the form of the Bayes' Filter presented in Lecture 10. Submit as a typed PDF uploaded to the **Lab 5 Part D: OPTIONAL** gradescope assignment.
 
-### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT* (This part is very cool so try to have everyone onboard with what's happening here.) 
+### Part E: Grading for SLAM (1 bonus point) - **TEAMWORK**, *OPTIONAL EXTRA-CREDIT* 
 
-Running this part requires an installation of the ros rtabmap package (installed with apt install ros-humble-rtabmap-ros) and the foxglove bridge package (apt install ros-humble-foxglove-bridge). Luckily we have already done this for you, but keep this in mind in case you ever want to deploy this on a different machine or robot. 
-
-**Assignment** Goal: To earn the points for this part, we would like to see 3 things. 1) A video recording of your localization module from part C running side by side with a video of the car navigating in real life. 2) We would love to see a screen recording of movement and mapping occurring from the foxglove visualization platform and a loop closure optimization happen (does not have to be real-time). 3) A brief write-up of how a visual SLAM localization method differs from your Monte Carlo Localization. You can try using the non-mapping mode to see it in action but it's not necessary.  
-
-
-#### Step 1: Getting familiar with the Foxglove viewer (it's like Rviz but better and has nicer colors)
-
-The reason we are choosing not to use RViz for this part, is because with our current setup, RViz is rendering on the car which consumes alot of resources, and we want to dedicate as much of our resources on the racecar's computer to the SLAM package and also the ZED camera.
-
-
-TBW (To be written)
- 
-
-Perfect, now that you are familiar with this visualization software, let's move on 
-#### Step 2: Running SLAM and saving a map!
-Checkout what RTABMAP SLAM is all about at this [link](https://introlab.github.io/rtabmap/) and then follow these instructions:
-
-TBD (To be done... soon)
-- Enable saved layout or manually make layout for mapping visualization purposes on Foxglove
-- You will need to have these 3 processes running before you begin: ZED camera, teleop, and the foxglove bridge. 
-- Now you are ready to start
-- Run the provided launch file. Feel free to experiment with parameters (if you can find and work through the documentation LOL good luck) hint: source code >:) or claude code  >:(
-- Once you feel your map is complete (loop closures done, looks complete with no extreme distortions), save your map with the provided command.
-    - For this part, don't close out anything until you save your map this way. Your map and data you collected with slam will still live on in a .db file but for our purposes, we can quickly save the 2D map that you see on your screen. 
-- Now you can view it as a png, and it also comes with a yaml file, note where you saved these to. 
-
-```bash
-ros2 run nav2_map_server map_saver_cli -f my_map --ros-args -r /map:=/rtabmap/grid_map
-```
-
-#### Step 3: Part C...2... (Code Geass reference?)
-
-- Now modify the params files of racecar simulator and launch it with the map you just created!
-- Now film a video demonstrating your localization solution (for the hardware) on your newly created map alongside a video of the robot moving in the space you mapped. 
-- Submit this on gradescope
-
+Use the provided SLAM package to create your own map of an area of your choosing, and then show your localization from Part C running in this area, for at least 10 seconds, driving at least 10 euclidean meters (loops encouraged). Specifically, we would like to see two videos side by side of the browser visualization and real-life car moving through the area you chose. Please choose a large enough room or area that is driveable, has plenty of obstacles/features/landmarks, and does not change too often. Foot traffic or other non-static objects may cause unwanted artifacts in your map. Additionally, we would like to hear a brief explanation during your checkoff on the differences between MCL (Mone Carlo Localization), and graph-based localization that is used in visual slam algorithms. 
 
 
 
