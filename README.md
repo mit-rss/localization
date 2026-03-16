@@ -13,7 +13,7 @@
 
 *Note: Late checkoffs will incur a percentage penalty to your participation grade. Missed checkoffs will result in -1% to your overall grade*
 
-**notebook with detailed instructions for each module: [README.ipynb](README.ipynb)**
+**A lot of this lab's instructions are in this notebook with detailed instructions for each module: [README.ipynb](README.ipynb) We include them in a python notebook to take advantage of mathematical formatting that markdown doesn't support. **
 
 # Lab 5: Monte Carlo Localization (MCL)
 
