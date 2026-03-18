@@ -39,9 +39,9 @@ The grades will be weighted according to the table below for an overall lab grad
 
 | Deliverable Grade | Weighting              |
 |---------------|----------------------------------------------------------------------------|
-| briefing grade (out of 10)  | 20% |
-| report grade (out of 10) | 40% |
-| grade for parts A-E (out of 10, up to 12/10 with extra credit) | 40% |
+| Briefing grade (out of 10)  | 20% |
+| Report grade (out of 10) | 40% |
+| Technical completion of lab | 40% |
 
 - **Part A - (Writing Assignment, 3pts)** Understand the motion and sensor model.
 - **Part B - (Programming Assignment, 4pts)** Develop and test the particle filter algorithm in 2D racecar simulation environment.
