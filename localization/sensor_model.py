@@ -1,9 +1,9 @@
 import numpy as np
 from scan_simulator_2d import PyScanSimulator2D
-# Try to change to just `from scan_simulator_2d import PyScanSimulator2D` 
+# Try to change to just `from scan_simulator_2d import PyScanSimulator2D`
 # if any error re: scan_simulator_2d occurs
 
-from tf_transformations import euler_from_quaternion
+from scipy.spatial.transform import Rotation as R
 
 from nav_msgs.msg import OccupancyGrid
 
@@ -135,12 +135,11 @@ class SensorModel:
         # Convert the origin to a tuple
         origin_p = map_msg.info.origin.position
         origin_o = map_msg.info.origin.orientation
-        origin_o = euler_from_quaternion((
-            origin_o.x,
-            origin_o.y,
-            origin_o.z,
-            origin_o.w))
-        origin = (origin_p.x, origin_p.y, origin_o[2])
+
+        quat = [origin_o.x, origin_o.y, origin_o.z, origin_o.w]
+        yaw = R.from_quat(quat).as_euler("xyz")[2]
+
+        origin = (origin_p.x, origin_p.y, yaw)
 
         # Initialize a map with the laser scan
         self.scan_sim.set_map(
@@ -149,9 +148,7 @@ class SensorModel:
             map_msg.info.width,
             map_msg.info.resolution,
             origin,
-            0.5)  # Consider anything < 0.5 to be free
+            0.5)
 
-        # Make the map set
         self.map_set = True
-
         print("Map initialized")
