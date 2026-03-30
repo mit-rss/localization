@@ -129,7 +129,6 @@ As the algorithm must run in realtime with a large number of particles, **an eff
 - Use the smallest number of operations required to perform your arithmetic, avoid unnecessary memory allocations, and avoid excessive function calls.
 - Identify your critical code paths, and keep them clean. Conversely, don't worry too much about code that is called infrequently.
 - Publishing visualization messages may cause your system to be slower. It is recommended to set a ROS parameter to enable/disable visualizations.
-- On the real car, make sure your Jetson is running in Max-N mode for best performance
 - If you want an even faster (albeit more complicated to interface with) ray tracer check out [range_libc](https://github.com/kctess5/range_libc). This was written by RSS TA Corey Walsh and it is heavily optimized.
 
 ### Part D: Grading for the Bayes' filter derivation (1 bonus point) - **INDIVIDUAL EFFORT**, *OPTIONAL EXTRA-CREDIT*
