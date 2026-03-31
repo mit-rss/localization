@@ -1,39 +1,36 @@
 
-
+import numpy as np
 class MotionModel:
 
     def __init__(self, node):
-        ####################################
-        # TODO
-        # Do any precomputation for the motion
-        # model here.
+        self.node = node
+
+        # Motion noise parameters
+        self.sigma_x = 0.02
+        self.sigma_y = 0.02
+        self.sigma_theta = 0.01
 
         pass
 
         ####################################
 
     def evaluate(self, particles, odometry):
-        """
-        Update the particles to reflect probable
-        future states given the odometry data.
+        dx, dy, dtheta = odometry
+        n = particles.shape[0]
 
-        args:
-            particles: An Nx3 matrix of the form:
+        # Add Gaussian noise to the odometry for each particle
+        noisy_dx = dx + np.random.normal(0.0, self.sigma_x, n)
+        noisy_dy = dy + np.random.normal(0.0, self.sigma_y, n)
+        noisy_dtheta = dtheta + np.random.normal(0.0, self.sigma_theta, n)
 
-                [x0 y0 theta0]
-                [x1 y0 theta1]
-                [    ...     ]
+        # Current heading of each particle
+        theta = particles[:, 2]
 
-            odometry: A 3-vector [dx dy dtheta]
+        # Convert body-frame motion into world-frame motion
+        particles[:, 0] += np.cos(theta) * noisy_dx - np.sin(theta) * noisy_dy
+        particles[:, 1] += np.sin(theta) * noisy_dx + np.cos(theta) * noisy_dy
+        particles[:, 2] += noisy_dtheta
 
-        returns:
-            particles: An updated matrix of the
-                same size
-        """
-
-        ####################################
-        # TODO
-
-        raise NotImplementedError
+        return particles
 
         ####################################
