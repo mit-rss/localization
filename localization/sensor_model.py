@@ -30,12 +30,14 @@ class SensorModel:
             'lidar_scale_to_map_scale').get_parameter_value().double_value
 
         ####################################
-        # Adjust these parameters
-        self.alpha_hit = 0
-        self.alpha_short = 0
-        self.alpha_max = 0
-        self.alpha_rand = 0
-        self.sigma_hit = 0
+
+        # sensor_model_test.py 
+        # we need to change this later for the real car
+        self.alpha_hit = 0.74
+        self.alpha_short = 0.07
+        self.alpha_max = 0.07
+        self.alpha_rand = 0.12
+        self.sigma_hit = 8.0
 
         # Your sensor table will be a `table_width` x `table_width` np array:
         self.table_width = 201
@@ -69,61 +71,93 @@ class SensorModel:
 
     def precompute_sensor_model(self):
         """
-        Generate and store a table which represents the sensor model.
+        Build a 201x201 lookup table so we don't have to do expensive probability
+        math at runtime. Each cell table[z, d] stores the probability of the lidar
+        measuring distance z when the true wall distance is d. 
 
-        For each discrete computed range value, this provides the probability of 
-        measuring any (discrete) range. This table is indexed by the sensor model
-        at runtime by discretizing the measurements and computed ranges from
-        RangeLibc.
-        This table must be implemented as a numpy 2D array.
+        self.sensor_model_table[z, d] = probability
 
-        Compute the table based on class parameters alpha_hit, alpha_short,
-        alpha_max, alpha_rand, sigma_hit, and table_width.
+        We compute four probability components (hit, short, max, rand) from the handout, 
+        blend them with the alpha weights, and normalize each column to sum to 1.
 
-        args:
-            N/A
-
-        returns:
-            No return type. Directly modify `self.sensor_model_table`.
+        Directly modifies self.sensor_model_table.
         """
 
-        raise NotImplementedError
+        z_max = self.table_width - 1
+
+        # Rows = measured distance z, columns = true distance d (both 0..200).
+        # Shaped for broadcasting so all math produces a (201, 201) grid.
+        z = np.arange(self.table_width).reshape((-1, 1))
+        d = np.arange(self.table_width).reshape((1, -1))
+
+        # p_hit: Gaussian centered on the true distance.
+        # We skip the 1/sqrt(2*pi*sigma^2) constant since we normalize right after.
+        p_hit = np.exp(-0.5 * ((z - d) / self.sigma_hit) ** 2)
+        p_hit /= p_hit.sum(axis=0, keepdims=True)
+
+        # p_short: models unexpected obstacles blocking the beam before reaching d.
+        # d_safe avoids division by zero in the d=0 column.
+        d_safe = np.where(d > 0, d, 1.0)
+        p_short = np.where(
+            (z <= d) & (d > 0),
+            (2.0 / d_safe) * (1.0 - z / d_safe),
+            0.0
+        )
+
+        # p_max: spike at max range for missed/reflected beams.
+        p_max = np.zeros((self.table_width, self.table_width))
+        p_max[z_max, :] = 1.0
+
+        # p_rand: small uniform probability for random noise.
+        p_rand = np.full((self.table_width, self.table_width), 1.0 / z_max)
+
+        # Mix the four components with the alpha weights, then normalize each column.
+        self.sensor_model_table = (
+            self.alpha_hit   * p_hit +
+            self.alpha_short * p_short +
+            self.alpha_max   * p_max +
+            self.alpha_rand  * p_rand
+        )
+        self.sensor_model_table /= self.sensor_model_table.sum(axis=0, keepdims=True)
 
     def evaluate(self, particles, observation):
         """
-        Evaluate how likely each particle is given
-        the observed scan.
+        Scores each particle by comparing what the lidar actually measured
+        (observation) against what each particle would expect to see (via ray
+        tracing on the map). Converts both to pixel units, looks up probabilities
+        from the precomputed table, and multiplies across all beams to get a
+        single weight per particle. Higher weight = better match to reality.
 
         args:
-            particles: An Nx3 matrix of the form:
-
-                [x0 y0 theta0]
-                [x1 y0 theta1]
-                [    ...     ]
-
-            observation: A vector of lidar data measured
-                from the actual lidar. THIS IS Z_K. Each range in Z_K is Z_K^i
+            particles: Nx3 matrix of [x, y, theta] particle poses.
+            observation: 1D array of lidar ranges (meters) from the real sensor.
 
         returns:
-           probabilities: A vector of length N representing
-               the probability of each particle existing
-               given the observation and the map.
+            probabilities: length-N array of particle weights.
         """
 
         if not self.map_set:
             return
 
-        ####################################
-        # TODO
-        # Evaluate the sensor model here!
-        #
-        # You will probably want to use this function
-        # to perform ray tracing from all the particles.
-        # This produces a matrix of size N x num_beams_per_particle 
-
+        # Ray trace from each particle to get what it would see on the map.
         scans = self.scan_sim.scan(particles)
 
-        ####################################
+        # Convert from meters to pixel units so we can index into the table.
+        scale = self.resolution * self.lidar_scale_to_map_scale
+        obs = observation / scale
+        scans = scans / scale
+
+        # Clip to table bounds and discretize to ints for indexing.
+        z_max = self.table_width - 1
+        obs = np.clip(obs, 0, z_max).astype(int)
+        scans = np.clip(scans, 0, z_max).astype(int)
+
+        # Look up p(measured z | true d) for every particle and beam at once.
+        probs = self.sensor_model_table[obs, scans]
+
+        # Each particle's weight is the product of all its beam probabilities.
+        weights = np.prod(probs, axis=1)
+        return weights
 
     def map_callback(self, map_msg):
         # Convert the map to a numpy array
