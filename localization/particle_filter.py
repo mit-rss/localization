@@ -97,10 +97,9 @@ class ParticleFilter(Node):
         theta = 2.0 * np.arctan2(q.z, q.w)
 
         # Spread particles around the initial guess with small noise
-        self.particles[:, 0] = x + np.random.normal(0, 0.5, self.num_particles)
-        self.particles[:, 1] = y + np.random.normal(0, 0.5, self.num_particles)
-        self.particles[:, 2] = theta + np.random.normal(0, 0.1, self.num_particles)
-
+        self.particles[:, 0] = x 
+        self.particles[:, 1] = y 
+        self.particles[:, 2] = theta 
         self.initialized = True
         self.get_logger().info(f"Particles initialized at ({x:.2f}, {y:.2f}, {theta:.2f})")
 
@@ -166,9 +165,7 @@ class ParticleFilter(Node):
         self.particles = self.particles[sampled_indices]
 
         # Add a tiny bit of noise after resampling to keep the set diverse
-        self.particles[:, 0] += np.random.normal(0, 0.05, self.num_particles)
-        self.particles[:, 1] += np.random.normal(0, 0.05, self.num_particles)
-        self.particles[:, 2] += np.random.normal(0, 0.01, self.num_particles)
+      
 
         self.publish_pose_estimate()
 
