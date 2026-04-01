@@ -4,7 +4,7 @@ from localization.sensor_model import SensorModel
 from localization.motion_model import MotionModel
 
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped
+from geometry_msgs.msg import PoseWithCovarianceStamped, TransformStamped, PoseArray, Pose
 from sensor_msgs.msg import LaserScan
 from tf2_ros import TransformBroadcaster
 
@@ -64,6 +64,7 @@ class ParticleFilter(Node):
         #     "/map" frame.
 
         self.odom_pub = self.create_publisher(Odometry, "/pf/pose/odom", 1)
+        self.particle_pub = self.create_publisher(PoseArray, "/pf/particles", 1)
 
         # TF broadcaster to publish the map -> particle_filter_frame transform
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -205,6 +206,19 @@ class ParticleFilter(Node):
         odom_msg.pose.pose.orientation.z = np.sin(theta / 2.0)
         odom_msg.pose.pose.orientation.w = np.cos(theta / 2.0)
         self.odom_pub.publish(odom_msg)
+
+        # Publish the full particle cloud as a PoseArray
+        pose_array = PoseArray()
+        pose_array.header.stamp = now
+        pose_array.header.frame_id = "map"
+        for p in self.particles:
+            pose = Pose()
+            pose.position.x = p[0]
+            pose.position.y = p[1]
+            pose.orientation.z = np.sin(p[2] / 2.0)
+            pose.orientation.w = np.cos(p[2] / 2.0)
+            pose_array.poses.append(pose)
+        self.particle_pub.publish(pose_array)
 
         # Broadcast TF transform so RViz can visualize the car on the map
         tf_msg = TransformStamped()
